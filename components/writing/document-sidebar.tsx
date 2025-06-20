@@ -80,7 +80,8 @@ export function DocumentSidebar({ userId }: DocumentSidebarProps) {
     const diffTime = now.getTime() - date.getTime()
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
     
-    if (diffDays === 0) {
+    // Handle negative time differences (server time slightly ahead of client)
+    if (diffDays <= 0) {
       return `Today ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
     } else if (diffDays === 1) {
       return 'Yesterday'

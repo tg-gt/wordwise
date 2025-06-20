@@ -128,10 +128,10 @@ export const useWritingStore = create<WritingState>((set, get) => ({
           isSaving: false 
         })
         
-        // Update the document in the documents list
-        const updatedDocuments = state.documents.map(doc => 
-          doc.id === updated.id ? updated : doc
-        )
+        // Update the document in the documents list and re-sort by updated_at
+        const updatedDocuments = state.documents
+          .map(doc => doc.id === updated.id ? updated : doc)
+          .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
         set({ documents: updatedDocuments })
       }
     } catch (error) {
@@ -172,9 +172,10 @@ export const useWritingStore = create<WritingState>((set, get) => ({
         lastSaved: new Date()
       })
       
-      // Add to documents list
+      // Add to documents list and ensure proper sorting
       set((state) => ({
         documents: [doc, ...state.documents]
+          .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
       }))
     }
   },
@@ -218,10 +219,10 @@ export const useWritingStore = create<WritingState>((set, get) => ({
     const updated = await state.documentService.updateDocument(id, { title })
     
     if (updated) {
-      // Update in documents list
-      const updatedDocuments = state.documents.map(doc => 
-        doc.id === id ? updated : doc
-      )
+      // Update in documents list and re-sort by updated_at
+      const updatedDocuments = state.documents
+        .map(doc => doc.id === id ? updated : doc)
+        .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
       set({ documents: updatedDocuments })
       
       // Update current document if it's the same
