@@ -11,6 +11,10 @@ interface WritingState {
   isSaving: boolean
   lastSaved: Date | null
   
+  // Documents list state
+  documents: Document[]
+  isLoadingDocuments: boolean
+  
   // Suggestion pipeline state
   suggestions: Suggestion[]
   isAnalyzing: boolean
@@ -19,6 +23,7 @@ interface WritingState {
   
   // UI state
   sidebarVisible: boolean
+  documentSidebarVisible: boolean
   
   // Services
   documentService: DocumentService
@@ -32,6 +37,11 @@ interface WritingState {
   loadDocument: (id: string) => Promise<void>
   createNewDocument: (userId: string) => Promise<void>
   
+  // Document list actions
+  loadUserDocuments: (userId: string) => Promise<void>
+  deleteDocument: (id: string) => Promise<void>
+  updateDocumentTitle: (id: string, title: string) => Promise<void>
+  
   // Suggestion actions
   requestGrammarSuggestions: () => Promise<void>
   requestPersonaSuggestions: () => Promise<void>
@@ -40,6 +50,7 @@ interface WritingState {
   
   // UI actions
   toggleSidebar: () => void
+  toggleDocumentSidebar: () => void
   
   // Cleanup
   cleanup: () => void
@@ -51,11 +62,14 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   content: '',
   isSaving: false,
   lastSaved: null,
+  documents: [],
+  isLoadingDocuments: false,
   suggestions: [],
   isAnalyzing: false,
   grammarTimer: null,
   personaTimer: null,
   sidebarVisible: true,
+  documentSidebarVisible: true,
   
   // Services
   documentService: new DocumentService(),
@@ -64,7 +78,11 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   
   // Actions
   setCurrentDocument: (doc) => {
-    set({ currentDocument: doc, content: doc?.content || '' })
+    set({ 
+      currentDocument: doc, 
+      content: doc?.content || '',
+      suggestions: [] // Clear suggestions when switching documents
+    })
   },
   
   updateContent: (content) => {
@@ -97,7 +115,10 @@ export const useWritingStore = create<WritingState>((set, get) => ({
     try {
       const updated = await state.documentService.updateDocument(
         state.currentDocument.id,
-        { content: state.content }
+        { 
+          content: state.content,
+          word_count: state.content.split(/\s+/).filter(word => word.length > 0).length
+        }
       )
       
       if (updated) {
@@ -106,6 +127,12 @@ export const useWritingStore = create<WritingState>((set, get) => ({
           lastSaved: new Date(),
           isSaving: false 
         })
+        
+        // Update the document in the documents list
+        const updatedDocuments = state.documents.map(doc => 
+          doc.id === updated.id ? updated : doc
+        )
+        set({ documents: updatedDocuments })
       }
     } catch (error) {
       console.error('Error saving document:', error)
@@ -144,6 +171,63 @@ export const useWritingStore = create<WritingState>((set, get) => ({
         suggestions: [],
         lastSaved: new Date()
       })
+      
+      // Add to documents list
+      set((state) => ({
+        documents: [doc, ...state.documents]
+      }))
+    }
+  },
+  
+  // Document list actions
+  loadUserDocuments: async (userId) => {
+    const state = get()
+    set({ isLoadingDocuments: true })
+    
+    try {
+      const documents = await state.documentService.getUserDocuments(userId)
+      set({ documents, isLoadingDocuments: false })
+    } catch (error) {
+      console.error('Error loading user documents:', error)
+      set({ isLoadingDocuments: false })
+    }
+  },
+  
+  deleteDocument: async (id) => {
+    const state = get()
+    const success = await state.documentService.deleteDocument(id)
+    
+    if (success) {
+      // Remove from documents list
+      const updatedDocuments = state.documents.filter(doc => doc.id !== id)
+      set({ documents: updatedDocuments })
+      
+      // If this was the current document, clear it
+      if (state.currentDocument?.id === id) {
+        set({ 
+          currentDocument: null, 
+          content: '', 
+          suggestions: [] 
+        })
+      }
+    }
+  },
+  
+  updateDocumentTitle: async (id, title) => {
+    const state = get()
+    const updated = await state.documentService.updateDocument(id, { title })
+    
+    if (updated) {
+      // Update in documents list
+      const updatedDocuments = state.documents.map(doc => 
+        doc.id === id ? updated : doc
+      )
+      set({ documents: updatedDocuments })
+      
+      // Update current document if it's the same
+      if (state.currentDocument?.id === id) {
+        set({ currentDocument: updated })
+      }
     }
   },
   
@@ -250,10 +334,12 @@ export const useWritingStore = create<WritingState>((set, get) => ({
     set({ suggestions: updatedSuggestions })
   },
 
-
-  
   toggleSidebar: () => {
     set((state) => ({ sidebarVisible: !state.sidebarVisible }))
+  },
+  
+  toggleDocumentSidebar: () => {
+    set((state) => ({ documentSidebarVisible: !state.documentSidebarVisible }))
   },
   
   cleanup: () => {

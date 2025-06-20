@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from 'react'
 import { useWritingStore } from '@/lib/stores/writing-store'
+import { DocumentSidebar } from './document-sidebar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { 
   PanelRight, 
+  PanelLeft,
   Save, 
   Loader2, 
   Check, 
@@ -30,27 +32,26 @@ export function WritingEditor({ userId }: WritingEditorProps) {
     suggestions,
     isAnalyzing,
     sidebarVisible,
+    documentSidebarVisible,
     updateContent,
     saveDocument,
     createNewDocument,
     acceptSuggestion,
     rejectSuggestion,
     toggleSidebar,
+    toggleDocumentSidebar,
     cleanup
   } = useWritingStore()
 
-  // Initialize with new document on mount
+  // Initialize with new document on mount if no documents exist
   useEffect(() => {
-    if (!currentDocument) {
-      createNewDocument(userId)
-    }
-    
+    // Don't auto-create document - let DocumentSidebar handle loading existing documents
     return () => cleanup()
-  }, [currentDocument, createNewDocument, userId, cleanup])
+  }, [cleanup])
 
-  // Auto-focus textarea
+  // Auto-focus textarea when document changes
   useEffect(() => {
-    if (textareaRef.current) {
+    if (textareaRef.current && currentDocument) {
       textareaRef.current.focus()
     }
   }, [currentDocument])
@@ -78,39 +79,59 @@ export function WritingEditor({ userId }: WritingEditorProps) {
 
   return (
     <div className="h-screen flex bg-background">
+      {/* Document Sidebar */}
+      {documentSidebarVisible && (
+        <DocumentSidebar userId={userId} />
+      )}
+
       {/* Main Editor */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <div className="border-b p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              <span className="font-medium">
-                {currentDocument?.title || 'Untitled'}
-              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleDocumentSidebar}
+                className="h-8 w-8 p-0"
+              >
+                <PanelLeft className="w-4 h-4" />
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                <span className="font-medium">
+                  {currentDocument?.title || 'Select a document'}
+                </span>
+              </div>
             </div>
             
             {/* Save Status */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : lastSaved ? (
-                <>
-                  <Clock className="w-4 h-4" />
-                  <span>Saved {lastSaved.toLocaleTimeString()}</span>
-                </>
-              ) : null}
-            </div>
+            {currentDocument && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : lastSaved ? (
+                  <>
+                    <Clock className="w-4 h-4" />
+                    <span>Saved {lastSaved.toLocaleTimeString()}</span>
+                  </>
+                ) : null}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
             {/* Word Count */}
-            <Badge variant="secondary">
-              {wordCount} words
-            </Badge>
+            {currentDocument && (
+              <Badge variant="secondary">
+                {wordCount} words
+              </Badge>
+            )}
             
             {/* Analysis Status */}
             {isAnalyzing && (
@@ -121,17 +142,19 @@ export function WritingEditor({ userId }: WritingEditorProps) {
             )}
             
             {/* Manual Save */}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={saveDocument}
-              disabled={isSaving}
-            >
-              <Save className="w-4 h-4 mr-1" />
-              Save
-            </Button>
+            {currentDocument && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={saveDocument}
+                disabled={isSaving}
+              >
+                <Save className="w-4 h-4 mr-1" />
+                Save
+              </Button>
+            )}
             
-            {/* Toggle Sidebar */}
+            {/* Toggle Suggestions Sidebar */}
             <Button 
               variant="outline" 
               size="sm" 
@@ -144,15 +167,30 @@ export function WritingEditor({ userId }: WritingEditorProps) {
 
         {/* Writing Area */}
         <div className="flex-1 p-6">
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={handleContentChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Start writing... Let your thoughts flow freely."
-            className="w-full h-full resize-none border-none outline-none text-lg leading-relaxed bg-transparent placeholder:text-muted-foreground/50"
-            spellCheck={false}
-          />
+          {currentDocument ? (
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={handleContentChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Start writing... Let your thoughts flow freely."
+              className="w-full h-full resize-none border-none outline-none text-lg leading-relaxed bg-transparent placeholder:text-muted-foreground/50"
+              spellCheck={false}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-center text-muted-foreground">
+              <div>
+                <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-medium mb-2">No document selected</h3>
+                <p className="text-sm">
+                  {documentSidebarVisible 
+                    ? "Select a document from the sidebar or create a new one" 
+                    : "Open the document sidebar to get started"
+                  }
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -167,7 +205,11 @@ export function WritingEditor({ userId }: WritingEditorProps) {
           </div>
           
           <div className="flex-1 overflow-auto p-4 space-y-4">
-            {suggestions.length === 0 ? (
+            {!currentDocument ? (
+              <div className="text-center text-muted-foreground text-sm py-8">
+                Select a document to see suggestions
+              </div>
+            ) : suggestions.length === 0 ? (
               <div className="text-center text-muted-foreground text-sm py-8">
                 {isAnalyzing ? (
                   <div className="flex items-center justify-center gap-2">
