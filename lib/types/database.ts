@@ -1,4 +1,4 @@
-// Database types for WordWise
+// Database types for AnimusWriter
 export interface Database {
   public: {
     Tables: {

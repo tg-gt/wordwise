@@ -37,7 +37,7 @@ export default async function Home() {
           <div className="flex gap-5 items-center font-semibold">
             <Link href={"/"} className="flex items-center gap-2">
               <PenTool className="w-6 h-6" />
-              <span className="text-xl">WordWise</span>
+              <span className="text-xl">AnimusWriter</span>
             </Link>
           </div>
           <AuthButton />
@@ -54,14 +54,14 @@ export default async function Home() {
             </Badge>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-              Write Better with{" "}
+              Tweet Better with{" "}
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                AI Insights
+                AI Feedback
               </span>
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              WordWise harnesses the power of Jung's <strong>Anima & Animus</strong> archetypes alongside AI personas to transform your writing. 
+              AnimusWriter harnesses the power of Jung's <strong>Anima & Animus</strong> archetypes alongside AI personas to transform your writing. 
               Balance intuitive creativity with strategic clarity while getting real-time grammar and style improvements.
             </p>
           </div>
@@ -94,10 +94,10 @@ export default async function Home() {
             <h2 className="text-3xl sm:text-4xl font-bold mb-6">
               The Power of <span className="text-blue-600">Anima</span> & <span className="text-purple-600">Animus</span>
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Based on Carl Jung's archetypal psychology, WordWise provides you with two complementary AI voices 
-              that mirror the dual nature of human consciousness and creativity.
-            </p>
+                         <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+               Based on Carl Jung's archetypal psychology, AnimusWriter provides you with two complementary AI voices 
+               that mirror the dual nature of human consciousness and creativity.
+             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-12">
@@ -284,7 +284,7 @@ export default async function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              How WordWise Works
+              How AnimusWriter Works
             </h2>
             <p className="text-xl text-muted-foreground">
               Start writing better in three simple steps

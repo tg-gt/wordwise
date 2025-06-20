@@ -1,4 +1,4 @@
--- WordWise Database Schema - Phase 1
+-- AnimusWriter Database Schema - Phase 1
 -- Run this in your Supabase SQL Editor
 
 -- Enable Row Level Security
