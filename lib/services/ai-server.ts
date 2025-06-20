@@ -62,7 +62,7 @@ export class AIServerService {
       const analysisText = text.length > maxChars ? text.slice(0, maxChars) : text
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini', // Phase 2A: Updated to use gpt-4o-mini for cost efficiency
+        model: 'gpt-4.1-nano', // Phase 2A: Updated to use gpt-4.1-nano for cost efficiency
         messages: [
           {
             role: 'system',
