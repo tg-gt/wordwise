@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useWritingStore } from '@/lib/stores/writing-store'
 import { DocumentSidebar } from './document-sidebar'
+import { PersonaSelector } from './persona-selector'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
@@ -33,16 +34,24 @@ export function WritingEditor({ userId }: WritingEditorProps) {
     isAnalyzing,
     sidebarVisible,
     documentSidebarVisible,
+    activePersona,
+    personaOutput,
+    isAnalyzingPersona,
     updateContent,
     saveDocument,
     acceptSuggestion,
     rejectSuggestion,
+    setActivePersona,
+    ratePersonaOutput,
     toggleSidebar,
     toggleDocumentSidebar,
     cleanup
   } = useWritingStore()
 
   const wordCount = content.split(/\s+/).filter(word => word.length > 0).length
+  const charCount = content.length
+  const MAX_CHARS = 10000
+  const WARNING_THRESHOLD = 9000
 
   // Initialize with new document on mount if no documents exist
   useEffect(() => {
@@ -58,7 +67,11 @@ export function WritingEditor({ userId }: WritingEditorProps) {
   }, [currentDocument])
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateContent(e.target.value)
+    const newContent = e.target.value
+    // Enforce character limit
+    if (newContent.length <= MAX_CHARS) {
+      updateContent(newContent)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -132,12 +145,30 @@ export function WritingEditor({ userId }: WritingEditorProps) {
               </Badge>
             )}
             
+            {/* Character Count */}
+            {currentDocument && (
+              <Badge 
+                variant={charCount >= MAX_CHARS ? "destructive" : charCount >= WARNING_THRESHOLD ? "secondary" : "outline"}
+                className={charCount >= WARNING_THRESHOLD ? "text-yellow-600 dark:text-yellow-400" : ""}
+              >
+                {charCount}/{MAX_CHARS}
+              </Badge>
+            )}
+            
             {/* Analysis Status */}
             {isAnalyzing && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 Analyzing
               </Badge>
+            )}
+            
+            {/* Phase 2: Persona Selector */}
+            {currentDocument && (
+              <PersonaSelector 
+                activePersona={activePersona}
+                onPersonaChange={setActivePersona}
+              />
             )}
             
             {/* Manual Save */}
@@ -197,30 +228,88 @@ export function WritingEditor({ userId }: WritingEditorProps) {
       {sidebarVisible && (
         <div className="w-80 border-l bg-muted/30 flex flex-col">
           <div className="p-4 border-b">
-            <h3 className="font-semibold text-sm">Writing Suggestions</h3>
+            <h3 className="font-semibold text-sm">AI Insights</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              {suggestions.length} pending suggestions
+              Persona insights & writing suggestions
             </p>
           </div>
           
-          <div className="flex-1 overflow-auto p-4 space-y-4">
+          <div className="flex-1 overflow-auto space-y-4">
             {!currentDocument ? (
-              <div className="text-center text-muted-foreground text-sm py-8">
-                Select a document to see suggestions
-              </div>
-            ) : suggestions.length === 0 ? (
-              <div className="text-center text-muted-foreground text-sm py-8">
-                {isAnalyzing ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Analyzing your writing...
-                  </div>
-                ) : (
-                  "No suggestions yet. Keep writing!"
-                )}
+              <div className="text-center text-muted-foreground text-sm py-8 px-4">
+                Select a document to see insights
               </div>
             ) : (
-              suggestions.map((suggestion) => (
+              <>
+                {/* Phase 2: Persona Insights Section */}
+                <div className="p-4 border-b">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-sm">🤖 Persona Insights</h4>
+                    <div className="text-xs text-muted-foreground">
+                      {activePersona.replace('twitter_', '').replace('_', ' ').toUpperCase()}
+                    </div>
+                  </div>
+                  
+                  {isAnalyzingPersona ? (
+                    <div className="flex items-center justify-center py-4 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Analyzing with {activePersona.replace('twitter_', '').replace('_', ' ')}...
+                    </div>
+                  ) : personaOutput ? (
+                    <Card className="p-3">
+                      <div className="space-y-2">
+                        <div className="text-sm leading-relaxed">
+                          {personaOutput.output_content}
+                        </div>
+                        {personaOutput.reasoning && (
+                          <div className="text-xs text-muted-foreground border-l-2 border-muted pl-2">
+                            {personaOutput.reasoning}
+                          </div>
+                        )}
+                        <div className="flex gap-2 pt-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => ratePersonaOutput(1)}
+                            className="flex-1"
+                          >
+                            👍
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => ratePersonaOutput(-1)}
+                            className="flex-1"
+                          >
+                            👎
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ) : (
+                    <div className="text-center text-muted-foreground text-sm py-4">
+                      Keep writing to get persona insights...
+                    </div>
+                  )}
+                </div>
+
+                {/* Grammar Suggestions Section */}
+                <div className="p-4">
+                  <h4 className="font-medium text-sm mb-3">✏️ Writing Suggestions</h4>
+                  {suggestions.length === 0 ? (
+                    <div className="text-center text-muted-foreground text-sm py-8">
+                      {isAnalyzing ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Analyzing your writing...
+                        </div>
+                      ) : (
+                        "No suggestions yet. Keep writing!"
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {suggestions.map((suggestion) => (
                 <Card key={suggestion.id} className="p-3">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -273,15 +362,19 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                       >
                         <X className="w-3 h-3 mr-1" />
                         Reject
-                      </Button>
-                    </div>
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
                   </div>
-                </Card>
-              ))
-            )}
-          </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    )}
+  </div>
   )
 } 

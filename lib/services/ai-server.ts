@@ -15,6 +15,33 @@ export interface GrammarAnalysis {
   }>
 }
 
+export interface PersonaAnalysis {
+  output_content: string
+  output_type: 'tweet' | 'insight' | 'challenge' | 'encouragement'
+  reasoning: string
+}
+
+// Persona prompt templates
+const PERSONA_PROMPTS = {
+  twitter_naval: `Analyze this writing as Naval Ravikant would. Focus on counterintuitive insights, universal truths, and wisdom about life, wealth, and happiness. Extract 1-2 potential tweets that could spark meaningful discussion. Format: Tweet text that sounds like Naval's voice - philosophical, concise, and profound.`,
+  
+  twitter_pg: `Analyze this writing as Paul Graham would. Focus on insights about startups, technology, and human nature. Look for patterns and contrarian truths. Extract 1-2 potential tweets about building, creating, or understanding complex systems. Format: Tweet text in PG's thoughtful, analytical style.`,
+  
+  twitter_elon: `Analyze this writing as Elon Musk would. Focus on bold visions, engineering solutions, and cutting through complexity. Extract 1-2 potential tweets that challenge conventional thinking or present ambitious ideas. Format: Tweet text with Elon's direct, sometimes provocative style.`,
+  
+  twitter_roon: `Analyze this writing as Roon would. Focus on meta-commentary, cultural observations, and witty takes on technology and society. Extract 1-2 potential tweets with intellectual humor and sharp insights. Format: Tweet text with Roon's distinctive voice - smart, funny, slightly ironic.`,
+  
+  twitter_sam: `Analyze this writing as Sam Altman would. Focus on insights about AI, the future, and building important things. Extract 1-2 potential tweets about progress, technology, or human potential. Format: Tweet text in Sam's optimistic yet thoughtful style.`,
+  
+  twitter_solbrah: `Analyze this writing as SolBrah would. Focus on contrarian health takes, masculine energy, and anti-establishment perspectives. Extract 1-2 potential tweets with bold, unapologetic opinions. Format: Tweet text with SolBrah's confident, provocative style.`,
+  
+  twitter_austen: `Analyze this writing as Austen Allred would. Focus on insights about education, building companies, and personal growth. Extract 1-2 potential tweets about learning, entrepreneurship, or overcoming challenges. Format: Tweet text in Austen's encouraging yet realistic style.`,
+  
+  anima: `Provide intuitive wisdom and emotional insight on this writing. Focus on creative encouragement, inner knowing, emotional patterns, and authentic self-expression. Be nurturing but insightful, highlighting what wants to emerge creatively and emotionally. Offer gentle guidance about following intuition and embracing the creative process.`,
+  
+  animus: `Analyze this writing with rational clarity and goal-oriented feedback. Focus on strategic thinking, constructive challenges, accountability for growth, and turning insights into action. Be direct but supportive, asking "is this just a skill issue?" and providing concrete steps forward. Help identify patterns that support or hinder progress.`
+}
+
 // Helper function to extract JSON from markdown-wrapped response
 function extractJsonFromResponse(content: string): string {
   // Remove markdown code blocks if present
@@ -28,14 +55,14 @@ function extractJsonFromResponse(content: string): string {
 }
 
 export class AIServerService {
-  async analyzeGrammar(text: string, contextWindow = 500): Promise<GrammarAnalysis> {
+  async analyzeGrammar(text: string): Promise<GrammarAnalysis> {
     try {
-      // For real-time pipeline, analyze only recent text for performance
-      const analysisText = text.slice(-contextWindow)
-      const offset = Math.max(0, text.length - contextWindow)
+      // Phase 2A: Remove context window limit - analyze full document up to 10k chars
+      const maxChars = 10000
+      const analysisText = text.length > maxChars ? text.slice(0, maxChars) : text
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini', // Phase 2A: Updated to use gpt-4o-mini for cost efficiency
         messages: [
           {
             role: 'system',
@@ -75,7 +102,7 @@ If no issues are found, return: {"suggestions": []}`
           }
         ],
         temperature: 0.3,
-        max_tokens: 1000,
+        max_tokens: 1500, // Increased for full document analysis
       })
 
       const content = response.choices[0]?.message?.content
@@ -97,90 +124,63 @@ If no issues are found, return: {"suggestions": []}`
         }>
       }
 
-      // Adjust positions to account for context window offset and validate them
-      const adjustedSuggestions = parsed.suggestions
+      // Validate positions against the actual text
+      const validatedSuggestions = parsed.suggestions
         .map(suggestion => {
-          const adjustedStart = suggestion.start + offset
-          const adjustedEnd = suggestion.end + offset
+          const { start, end } = suggestion
           
           // Validate the text range against the actual text
-          let actualStart = adjustedStart
-          let actualEnd = adjustedEnd
-          
-          // Check if the positions are valid
-          if (adjustedStart >= 0 && adjustedEnd <= text.length) {
-            const textAtRange = text.slice(adjustedStart, adjustedEnd)
+          if (start >= 0 && end <= text.length && start < end) {
+            const textAtRange = text.slice(start, end)
+            
+            // If the text matches exactly, we're good
+            if (textAtRange === suggestion.original_text) {
+              return {
+                ...suggestion,
+                text_range: { start, end }
+              }
+            }
             
             // If the text doesn't match, try to find the correct positions
-            if (textAtRange !== suggestion.original_text) {
-              // Try to find the text in the vicinity
-              const searchRadius = 5
-              let found = false
-              
-              for (let startOffset = -searchRadius; startOffset <= searchRadius && !found; startOffset++) {
-                for (let endOffset = -searchRadius; endOffset <= searchRadius && !found; endOffset++) {
-                  const testStart = Math.max(0, adjustedStart + startOffset)
-                  const testEnd = Math.min(text.length, adjustedEnd + endOffset)
-                  
-                  if (testStart < testEnd) {
-                    const testText = text.slice(testStart, testEnd)
-                    if (testText === suggestion.original_text) {
-                      actualStart = testStart
-                      actualEnd = testEnd
-                      found = true
+            const searchRadius = 10
+            for (let startOffset = -searchRadius; startOffset <= searchRadius; startOffset++) {
+              for (let endOffset = -searchRadius; endOffset <= searchRadius; endOffset++) {
+                const testStart = Math.max(0, start + startOffset)
+                const testEnd = Math.min(text.length, end + endOffset)
+                
+                if (testStart < testEnd) {
+                  const testText = text.slice(testStart, testEnd)
+                  if (testText === suggestion.original_text) {
+                    return {
+                      ...suggestion,
+                      text_range: { start: testStart, end: testEnd }
                     }
                   }
                 }
               }
-              
-              // If we still can't find it, try a broader search
-              if (!found) {
-                const index = text.indexOf(suggestion.original_text)
-                if (index !== -1) {
-                  actualStart = index
-                  actualEnd = index + suggestion.original_text.length
-                  found = true
-                }
-              }
-              
-              // If we still can't find it, skip this suggestion
-              if (!found) {
-                console.warn('Could not find correct positions for suggestion:', {
-                  original: suggestion.original_text,
-                  aiPositions: { start: adjustedStart, end: adjustedEnd },
-                  textAtAiPositions: textAtRange,
-                  fullText: text
-                })
-                return null
-              }
             }
-          } else {
-            // Positions are out of bounds, try to find the text
+            
+            // Try a broader search for the exact text
             const index = text.indexOf(suggestion.original_text)
             if (index !== -1) {
-              actualStart = index
-              actualEnd = index + suggestion.original_text.length
-            } else {
-              console.warn('Suggestion positions out of bounds and text not found:', {
-                original: suggestion.original_text,
-                positions: { start: adjustedStart, end: adjustedEnd },
-                textLength: text.length
-              })
-              return null
+              return {
+                ...suggestion,
+                text_range: { start: index, end: index + suggestion.original_text.length }
+              }
             }
           }
           
-          return {
-            ...suggestion,
-            text_range: {
-              start: actualStart,
-              end: actualEnd
-            }
-          }
+          // If we can't find valid positions, skip this suggestion
+          console.warn('Could not find valid positions for suggestion:', {
+            original: suggestion.original_text,
+            positions: { start, end },
+            textLength: text.length
+          })
+          return null
         })
-        .filter((suggestion): suggestion is NonNullable<typeof suggestion> => suggestion !== null) // Remove null suggestions
+        .filter((suggestion): suggestion is NonNullable<typeof suggestion> => suggestion !== null)
 
-      return { suggestions: adjustedSuggestions }
+      return { suggestions: validatedSuggestions }
 
     } catch (error) {
       console.error('Error analyzing grammar:', error)
@@ -188,32 +188,42 @@ If no issues are found, return: {"suggestions": []}`
     }
   }
 
-  async analyzePersonaInsights(text: string): Promise<string[]> {
+  async analyzePersonaInsights(text: string, personaType: string): Promise<PersonaAnalysis | null> {
     try {
+      const maxChars = 10000
+      const analysisText = text.length > maxChars ? text.slice(0, maxChars) : text
+      
+      const prompt = PERSONA_PROMPTS[personaType as keyof typeof PERSONA_PROMPTS]
+      if (!prompt) {
+        throw new Error(`Unknown persona type: ${personaType}`)
+      }
+
+      // Determine if this is a Twitter persona or archetypal persona
+      const isTwitterPersona = personaType.startsWith('twitter_')
+      const outputType = isTwitterPersona ? 'tweet' : (personaType === 'anima' ? 'insight' : 'challenge')
+
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o', // Use higher quality model for persona analysis
         messages: [
           {
             role: 'system',
-            content: `You are a writing coach analyzing personal journal entries for insights and encouragement.
+            content: `${prompt}
 
-Analyze the provided text and provide 2-3 brief, supportive insights that:
-1. Acknowledge patterns or themes in the writing
-2. Offer gentle encouragement or validation
-3. Suggest areas for deeper reflection
+Respond with a JSON object in this exact format:
+{
+  "output_content": "your ${isTwitterPersona ? 'tweet or insight' : 'guidance/insight'}",
+  "reasoning": "brief explanation of why this resonates or matters"
+}
 
-Keep insights concise (1-2 sentences each) and supportive in tone. Focus on the writer's growth, self-awareness, and creative expression.
-
-Respond as a JSON array of strings:
-["insight 1", "insight 2", "insight 3"]`
+Be authentic to the persona's voice and perspective. Keep insights meaningful but concise.`
           },
           {
             role: 'user',
-            content: `Please analyze this journal entry and provide supportive insights:\n\n"${text}"`
+            content: `Please analyze this writing and provide ${isTwitterPersona ? 'tweet-worthy insights' : 'archetypal guidance'}:\n\n"${analysisText}"`
           }
         ],
-        temperature: 0.7,
-        max_tokens: 300,
+        temperature: 0.7, // Higher temperature for creative persona analysis
+        max_tokens: 800,
       })
 
       const content = response.choices[0]?.message?.content
@@ -221,11 +231,21 @@ Respond as a JSON array of strings:
         throw new Error('No response from OpenAI')
       }
 
-      return JSON.parse(content) as string[]
+      const cleanJson = extractJsonFromResponse(content)
+      const parsed = JSON.parse(cleanJson) as {
+        output_content: string
+        reasoning: string
+      }
+
+      return {
+        output_content: parsed.output_content,
+        output_type: outputType as 'tweet' | 'insight' | 'challenge' | 'encouragement',
+        reasoning: parsed.reasoning
+      }
 
     } catch (error) {
       console.error('Error analyzing persona insights:', error)
-      return []
+      return null
     }
   }
 } 

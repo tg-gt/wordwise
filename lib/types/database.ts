@@ -72,6 +72,73 @@ export interface Database {
           created_at?: string
         }
       }
+      personas: {
+        Row: {
+          id: string
+          user_id: string
+          type: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
+          name: string
+          image_url: string | null
+          base_prompt: string
+          customization_details: Record<string, unknown>
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
+          name: string
+          image_url?: string | null
+          base_prompt: string
+          customization_details?: Record<string, unknown>
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
+          name?: string
+          image_url?: string | null
+          base_prompt?: string
+          customization_details?: Record<string, unknown>
+          is_active?: boolean
+          created_at?: string
+        }
+      }
+      persona_outputs: {
+        Row: {
+          id: string
+          document_id: string
+          persona_id: string
+          output_content: string
+          output_type: 'tweet' | 'insight' | 'challenge' | 'encouragement'
+          reasoning: string | null
+          user_rating: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          document_id: string
+          persona_id: string
+          output_content: string
+          output_type: 'tweet' | 'insight' | 'challenge' | 'encouragement'
+          reasoning?: string | null
+          user_rating?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          document_id?: string
+          persona_id?: string
+          output_content?: string
+          output_type?: 'tweet' | 'insight' | 'challenge' | 'encouragement'
+          reasoning?: string | null
+          user_rating?: number | null
+          created_at?: string
+        }
+      }
       user_preferences: {
         Row: {
           id: string
@@ -113,6 +180,14 @@ export type DocumentUpdate = Database['public']['Tables']['documents']['Update']
 export type Suggestion = Database['public']['Tables']['suggestions']['Row']
 export type SuggestionInsert = Database['public']['Tables']['suggestions']['Insert']
 export type SuggestionUpdate = Database['public']['Tables']['suggestions']['Update']
+
+export type Persona = Database['public']['Tables']['personas']['Row']
+export type PersonaInsert = Database['public']['Tables']['personas']['Insert']
+export type PersonaUpdate = Database['public']['Tables']['personas']['Update']
+
+export type PersonaOutput = Database['public']['Tables']['persona_outputs']['Row']
+export type PersonaOutputInsert = Database['public']['Tables']['persona_outputs']['Insert']
+export type PersonaOutputUpdate = Database['public']['Tables']['persona_outputs']['Update']
 
 export type UserPreferences = Database['public']['Tables']['user_preferences']['Row']
 export type UserPreferencesInsert = Database['public']['Tables']['user_preferences']['Insert']

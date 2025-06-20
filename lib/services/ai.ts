@@ -10,6 +10,16 @@ export interface GrammarAnalysis {
   }>
 }
 
+export interface PersonaAnalysisResponse {
+  success: boolean
+  data: {
+    personaOutput: string
+    outputType: 'tweet' | 'insight' | 'challenge' | 'encouragement'
+    reasoning: string
+  }
+  error?: string
+}
+
 export class AIService {
   async analyzeGrammar(text: string, documentId: string): Promise<GrammarAnalysis> {
     try {
@@ -32,14 +42,24 @@ export class AIService {
     }
   }
 
-  async analyzePersonaInsights(): Promise<string[]> {
+  async analyzePersonaInsights(content: string, personaType: string, documentId: string): Promise<PersonaAnalysisResponse | null> {
     try {
-      // This will be implemented in Phase 2 with persona API route
-      console.log('Persona insights analysis (Phase 2 feature)')
-      return []
+      const response = await fetch('/api/ai/persona', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content, personaType, documentId }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`)
+      }
+
+      return await response.json()
     } catch (error) {
       console.error('Error analyzing persona insights:', error)
-      return []
+      return null
     }
   }
 

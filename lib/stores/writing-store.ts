@@ -1,8 +1,11 @@
 import { create } from 'zustand'
-import { Document, Suggestion } from '@/lib/types/database'
+import { Document, Suggestion, PersonaOutput } from '@/lib/types/database'
 import { DocumentService } from '@/lib/services/documents'
 import { SuggestionService } from '@/lib/services/suggestions'
 import { AIService } from '@/lib/services/ai'
+
+// Persona types
+export type PersonaType = 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
 
 interface WritingState {
   // Current document state
@@ -20,6 +23,11 @@ interface WritingState {
   isAnalyzing: boolean
   grammarTimer: NodeJS.Timeout | null
   personaTimer: NodeJS.Timeout | null
+  
+  // Phase 2: Persona system
+  activePersona: PersonaType
+  personaOutput: PersonaOutput | null
+  isAnalyzingPersona: boolean
   
   // UI state
   sidebarVisible: boolean
@@ -48,6 +56,10 @@ interface WritingState {
   acceptSuggestion: (suggestionId: string) => Promise<void>
   rejectSuggestion: (suggestionId: string) => Promise<void>
   
+  // Phase 2: Persona actions
+  setActivePersona: (persona: PersonaType) => void
+  ratePersonaOutput: (rating: number) => Promise<void>
+  
   // UI actions
   toggleSidebar: () => void
   toggleDocumentSidebar: () => void
@@ -68,6 +80,12 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   isAnalyzing: false,
   grammarTimer: null,
   personaTimer: null,
+  
+  // Phase 2: Persona initial state
+  activePersona: 'twitter_naval', // Default to Naval's persona
+  personaOutput: null,
+  isAnalyzingPersona: false,
+  
   sidebarVisible: true,
   documentSidebarVisible: true,
   
@@ -274,23 +292,38 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   
   requestPersonaSuggestions: async () => {
     const state = get()
-    if (!state.currentDocument || state.isAnalyzing || !state.content.trim()) return
+    if (!state.currentDocument || state.isAnalyzingPersona || !state.content.trim()) return
     
-    set({ isAnalyzing: true })
+    set({ isAnalyzingPersona: true })
     
     try {
-      // Use AI service for persona insights (Phase 2 feature)
-      const insights = await state.aiService.analyzePersonaInsights()
+      // Phase 2: Use AI service for persona insights with active persona
+      const personaAnalysis = await state.aiService.analyzePersonaInsights(
+        state.content, 
+        state.activePersona, 
+        state.currentDocument.id
+      )
       
-      // For now, just log the insights - this will be expanded in Phase 2
-      if (insights.length > 0) {
-        console.log('Persona insights:', insights)
+      if (personaAnalysis && personaAnalysis.success) {
+        // Create a mock PersonaOutput for UI display
+        const mockOutput: PersonaOutput = {
+          id: 'temp-' + Date.now(),
+          document_id: state.currentDocument.id,
+          persona_id: 'temp-persona-id',
+          output_content: personaAnalysis.data.personaOutput,
+          output_type: personaAnalysis.data.outputType,
+          reasoning: personaAnalysis.data.reasoning,
+          user_rating: null,
+          created_at: new Date().toISOString()
+        }
+        
+        set({ personaOutput: mockOutput })
       }
       
     } catch (error) {
       console.error('Error requesting persona suggestions:', error)
     } finally {
-      set({ isAnalyzing: false })
+      set({ isAnalyzingPersona: false })
     }
   },
   
@@ -346,6 +379,26 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   
   toggleDocumentSidebar: () => {
     set((state) => ({ documentSidebarVisible: !state.documentSidebarVisible }))
+  },
+  
+  // Phase 2: Persona actions
+  setActivePersona: (persona: PersonaType) => {
+    set({ activePersona: persona, personaOutput: null })
+  },
+  
+  ratePersonaOutput: async (rating: number) => {
+    const state = get()
+    if (!state.personaOutput) return
+    
+    // Update the rating in the current persona output
+    set((state) => ({
+      personaOutput: state.personaOutput ? {
+        ...state.personaOutput,
+        user_rating: rating
+      } : null
+    }))
+    
+    // TODO: In full implementation, save rating to database
   },
   
   cleanup: () => {
