@@ -29,8 +29,6 @@ const PERSONA_PROMPTS = {
   
   twitter_elon: `Analyze this writing as Elon Musk would. Focus on bold visions, engineering solutions, and cutting through complexity. Extract 1-2 potential tweets that challenge conventional thinking or present ambitious ideas. Format: Tweet text with Elon's direct, sometimes provocative style.`,
   
-  twitter_roon: `Analyze this writing as Roon would. Focus on meta-commentary, cultural observations, and witty takes on technology and society. Extract 1-2 potential tweets with intellectual humor and sharp insights. Format: Tweet text with Roon's distinctive voice - smart, funny, slightly ironic.`,
-  
   twitter_sam: `Analyze this writing as Sam Altman would. Focus on insights about AI, the future, and building important things. Extract 1-2 potential tweets about progress, technology, or human potential. Format: Tweet text in Sam's optimistic yet thoughtful style.`,
   
   twitter_solbrah: `Analyze this writing as SolBrah would. Focus on contrarian health takes, masculine energy, and anti-establishment perspectives. Extract 1-2 potential tweets with bold, unapologetic opinions. Format: Tweet text with SolBrah's confident, provocative style.`,

@@ -21,7 +21,6 @@ const PERSONA_INFO = {
   twitter_naval: { name: 'Naval', emoji: '🧠', category: 'Twitter' },
   twitter_pg: { name: 'Paul Graham', emoji: '💡', category: 'Twitter' },
   twitter_elon: { name: 'Elon', emoji: '🚀', category: 'Twitter' },
-  twitter_roon: { name: 'Roon', emoji: '🎯', category: 'Twitter' },
   twitter_sam: { name: 'Sam Altman', emoji: '🤖', category: 'Twitter' },
   twitter_solbrah: { name: 'SolBrah', emoji: '💪', category: 'Twitter' },
   twitter_austen: { name: 'Austen', emoji: '🎓', category: 'Twitter' },

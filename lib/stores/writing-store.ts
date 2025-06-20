@@ -5,7 +5,7 @@ import { SuggestionService } from '@/lib/services/suggestions'
 import { AIService } from '@/lib/services/ai'
 
 // Persona types
-export type PersonaType = 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
+export type PersonaType = 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
 
 interface WritingState {
   // Current document state

@@ -76,7 +76,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          type: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
+          type: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
           name: string
           image_url: string | null
           base_prompt: string
@@ -87,7 +87,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          type: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
+          type: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
           name: string
           image_url?: string | null
           base_prompt: string
@@ -98,7 +98,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          type?: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_roon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
+          type?: 'twitter_naval' | 'twitter_pg' | 'twitter_elon' | 'twitter_sam' | 'twitter_solbrah' | 'twitter_austen' | 'anima' | 'animus'
           name?: string
           image_url?: string | null
           base_prompt?: string

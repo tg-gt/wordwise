@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Validate persona type
     const validPersonaTypes = [
-      'twitter_naval', 'twitter_pg', 'twitter_elon', 'twitter_roon', 
+      'twitter_naval', 'twitter_pg', 'twitter_elon', 
       'twitter_sam', 'twitter_solbrah', 'twitter_austen', 'anima', 'animus'
     ]
     
