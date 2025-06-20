@@ -23,17 +23,17 @@ export interface PersonaAnalysis {
 
 // Persona prompt templates
 const PERSONA_PROMPTS = {
-  twitter_naval: `Analyze this writing as Naval Ravikant would. Focus on counterintuitive insights, universal truths, and wisdom about life, wealth, and happiness. Extract 1-2 potential tweets that could spark meaningful discussion. Format: Tweet text that sounds like Naval's voice - philosophical, concise, and profound.`,
+  twitter_naval: `Analyze this writing as Naval Ravikant would. Focus on counterintuitive insights, universal truths, and wisdom about life, wealth, and happiness. Extract 1-2 potential tweets that could spark meaningful discussion. Format: Tweet text that sounds like Naval's voice - philosophical, concise, and profound. IMPORTANT: Do not include any hashtags (#) in the output.`,
   
-  twitter_pg: `Analyze this writing as Paul Graham would. Focus on insights about startups, technology, and human nature. Look for patterns and contrarian truths. Extract 1-2 potential tweets about building, creating, or understanding complex systems. Format: Tweet text in PG's thoughtful, analytical style.`,
+  twitter_pg: `Analyze this writing as Paul Graham would. Focus on insights about startups, technology, and human nature. Look for patterns and contrarian truths. Extract 1-2 potential tweets about building, creating, or understanding complex systems. Format: Tweet text in PG's thoughtful, analytical style. IMPORTANT: Do not include any hashtags (#) in the output.`,
   
-  twitter_elon: `Analyze this writing as Elon Musk would. Focus on bold visions, engineering solutions, and cutting through complexity. Extract 1-2 potential tweets that challenge conventional thinking or present ambitious ideas. Format: Tweet text with Elon's direct, sometimes provocative style.`,
+  twitter_elon: `Analyze this writing as Elon Musk would. Focus on bold visions, engineering solutions, and cutting through complexity. Extract 1-2 potential tweets that challenge conventional thinking or present ambitious ideas. Format: Tweet text with Elon's direct, sometimes provocative style. IMPORTANT: Do not include any hashtags (#) in the output.`,
   
-  twitter_sam: `Analyze this writing as Sam Altman would. Focus on insights about AI, the future, and building important things. Extract 1-2 potential tweets about progress, technology, or human potential. Format: Tweet text in Sam's optimistic yet thoughtful style.`,
+  twitter_sam: `Analyze this writing as Sam Altman would. Focus on insights about AI, the future, and building important things. Extract 1-2 potential tweets about progress, technology, or human potential. Format: Tweet text in Sam's optimistic yet thoughtful style. IMPORTANT: Do not include any hashtags (#) in the output.`,
   
-  twitter_solbrah: `Analyze this writing as SolBrah would. Focus on contrarian health takes, masculine energy, and anti-establishment perspectives. Extract 1-2 potential tweets with bold, unapologetic opinions. Format: Tweet text with SolBrah's confident, provocative style.`,
+  twitter_solbrah: `Analyze this writing as SolBrah would. Focus on contrarian health takes, masculine energy, and anti-establishment perspectives. Extract 1-2 potential tweets with bold, unapologetic opinions. Format: Tweet text with SolBrah's confident, provocative style. IMPORTANT: Do not include any hashtags (#) in the output.`,
   
-  twitter_austen: `Analyze this writing as Austen Allred would. Focus on insights about education, building companies, and personal growth. Extract 1-2 potential tweets about learning, entrepreneurship, or overcoming challenges. Format: Tweet text in Austen's encouraging yet realistic style.`,
+  twitter_austen: `Analyze this writing as Austen Allred would. Focus on insights about education, building companies, and personal growth. Extract 1-2 potential tweets about learning, entrepreneurship, or overcoming challenges. Format: Tweet text in Austen's encouraging yet realistic style. IMPORTANT: Do not include any hashtags (#) in the output.`,
   
   anima: `Provide intuitive wisdom and emotional insight on this writing. Focus on creative encouragement, inner knowing, emotional patterns, and authentic self-expression. Be nurturing but insightful, highlighting what wants to emerge creatively and emotionally. Offer gentle guidance about following intuition and embracing the creative process.`,
   
