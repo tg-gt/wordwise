@@ -248,7 +248,7 @@ export default async function Home() {
                 <CardTitle>Real-time Analysis</CardTitle>
                 <CardDescription>
                   See suggestions and insights as you type. No need to wait - 
-                  get feedback instantly while you're in the flow.
+                  get feedback instantly while you&apos;re in the flow.
                 </CardDescription>
               </CardHeader>
             </Card>
