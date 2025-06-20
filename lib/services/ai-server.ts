@@ -44,14 +44,80 @@ const PERSONA_PROMPTS = {
 
 // Helper function to extract JSON from markdown-wrapped response
 function extractJsonFromResponse(content: string): string {
-  // Remove markdown code blocks if present
-  const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/)
-  if (jsonMatch) {
-    return jsonMatch[1]
+  // First, try to extract from markdown code blocks
+  const markdownMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/)
+  if (markdownMatch) {
+    const candidate = markdownMatch[1].trim()
+    if (isValidJson(candidate)) {
+      return candidate
+    }
   }
   
-  // If no markdown blocks, assume it's already clean JSON
-  return content.trim()
+  // If no markdown blocks, find the first complete JSON object
+  const trimmed = content.trim()
+  
+  // Find the start of JSON
+  const jsonStart = trimmed.indexOf('{')
+  if (jsonStart === -1) {
+    return trimmed // No JSON found, return as-is
+  }
+  
+  // Find the matching closing brace by counting braces
+  let braceCount = 0
+  let inString = false
+  let escaped = false
+  let jsonEnd = -1
+  
+  for (let i = jsonStart; i < trimmed.length; i++) {
+    const char = trimmed[i]
+    
+    if (escaped) {
+      escaped = false
+      continue
+    }
+    
+    if (char === '\\' && inString) {
+      escaped = true
+      continue
+    }
+    
+    if (char === '"') {
+      inString = !inString
+      continue
+    }
+    
+    if (!inString) {
+      if (char === '{') {
+        braceCount++
+      } else if (char === '}') {
+        braceCount--
+        if (braceCount === 0) {
+          jsonEnd = i
+          break
+        }
+      }
+    }
+  }
+  
+  if (jsonEnd !== -1) {
+    const candidate = trimmed.slice(jsonStart, jsonEnd + 1)
+    if (isValidJson(candidate)) {
+      return candidate
+    }
+  }
+  
+  // Fallback: return the trimmed content
+  return trimmed
+}
+
+// Helper function to validate JSON
+function isValidJson(str: string): boolean {
+  try {
+    JSON.parse(str)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export class AIServerService {
@@ -232,9 +298,28 @@ Be authentic to the persona's voice and perspective. Keep insights meaningful bu
       }
 
       const cleanJson = extractJsonFromResponse(content)
-      const parsed = JSON.parse(cleanJson) as {
-        output_content: string
-        reasoning: string
+      
+      // Add debug logging for JSON parsing issues
+      console.log('AI Response length:', content.length)
+      console.log('Extracted JSON length:', cleanJson.length)
+      console.log('Extracted JSON preview:', cleanJson.substring(0, 200) + (cleanJson.length > 200 ? '...' : ''))
+      
+      // Validate JSON before parsing
+      let parsed: { output_content: string; reasoning: string }
+      try {
+        parsed = JSON.parse(cleanJson)
+      } catch (parseError) {
+        console.error('JSON Parse Error Details:', {
+          error: parseError,
+          extractedJson: cleanJson,
+          originalResponse: content
+        })
+        throw new Error(`Failed to parse AI response as JSON: ${parseError}`)
+      }
+      
+      // Validate the parsed structure
+      if (!parsed.output_content || !parsed.reasoning) {
+        throw new Error('AI response missing required fields: output_content or reasoning')
       }
 
       return {
