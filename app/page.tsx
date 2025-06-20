@@ -11,7 +11,6 @@ import {
   Brain, 
   FileText, 
   Sparkles, 
-  Users, 
   CheckCircle,
   Zap,
   Target,
@@ -61,7 +60,7 @@ export default async function Home() {
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              AnimusWriter harnesses the power of Jung's <strong>Anima & Animus</strong> archetypes alongside AI personas to transform your writing. 
+              AnimusWriter harnesses the power of Jung&apos;s <strong>Anima & Animus</strong> archetypes alongside AI personas to transform your writing. 
               Balance intuitive creativity with strategic clarity while getting real-time grammar and style improvements.
             </p>
           </div>
@@ -95,7 +94,7 @@ export default async function Home() {
               The Power of <span className="text-blue-600">Anima</span> & <span className="text-purple-600">Animus</span>
             </h2>
                          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-               Based on Carl Jung's archetypal psychology, AnimusWriter provides you with two complementary AI voices 
+               Based on Carl Jung&apos;s archetypal psychology, AnimusWriter provides you with two complementary AI voices 
                that mirror the dual nature of human consciousness and creativity.
              </p>
           </div>
@@ -154,7 +153,7 @@ export default async function Home() {
                 <CardDescription className="text-base leading-relaxed">
                   Your <strong>Animus</strong> analyzes with rational clarity and goal-oriented feedback. It challenges you to grow, 
                   provides strategic thinking, and turns insights into actionable steps. 
-                  Think of it as your inner critic—direct but supportive, asking "is this just a skill issue?" and pushing you forward.
+                  Think of it as your inner critic—direct but supportive, asking &quot;is this just a skill issue?&quot; and pushing you forward.
                 </CardDescription>
               </CardHeader>
               <CardContent>
