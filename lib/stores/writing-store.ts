@@ -68,6 +68,27 @@ interface WritingState {
   cleanup: () => void
 }
 
+// Utility function to deduplicate suggestions
+const deduplicateSuggestions = (suggestions: Suggestion[]): Suggestion[] => {
+  const seen = new Set<string>()
+  const deduplicated = suggestions.filter(suggestion => {
+    // Create a unique key based on original text and text range
+    const key = `${suggestion.original_text}-${suggestion.text_range.start}-${suggestion.text_range.end}`
+    if (seen.has(key)) {
+      console.warn(`[Store-Dedup] Removing duplicate suggestion: "${suggestion.original_text}" at ${suggestion.text_range.start}-${suggestion.text_range.end}`)
+      return false
+    }
+    seen.add(key)
+    return true
+  })
+  
+  if (deduplicated.length !== suggestions.length) {
+    console.log(`[Store-Dedup] Deduplicated ${suggestions.length} → ${deduplicated.length} suggestions`)
+  }
+  
+  return deduplicated
+}
+
 export const useWritingStore = create<WritingState>((set, get) => ({
   // Initial state
   currentDocument: null,
@@ -105,24 +126,50 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   
   updateContent: (content) => {
     const state = get()
+    console.log(`[Store-Content] Content updated, length: ${content.length} (was: ${state.content.length})`)
+    console.log(`[Store-Content] Current suggestions count: ${state.suggestions.length}`)
+    
     set({ content })
     
-    // Clear existing suggestions when user starts typing
+    // Clear existing suggestions when user starts typing and mark them as rejected in database
     if (state.suggestions.length > 0) {
+      console.log(`[Store-Content] Clearing ${state.suggestions.length} existing suggestions`)
+      
+      // Mark all current pending suggestions as rejected since text has changed
+      const pendingSuggestions = state.suggestions.filter(s => s.status === 'pending')
+      console.log(`[Store-Content] Marking ${pendingSuggestions.length} pending suggestions as rejected`)
+      
+      const rejectionPromises = pendingSuggestions
+        .map(s => state.suggestionService.updateSuggestionStatus(s.id, 'rejected'))
+      
+      Promise.all(rejectionPromises)
+        .then(() => console.log(`[Store-Content] Successfully rejected ${pendingSuggestions.length} suggestions`))
+        .catch(error => console.error('[Store-Content] Error rejecting old suggestions:', error))
+      
       set({ suggestions: [] })
     }
     
     // Clear existing timers
-    if (state.grammarTimer) clearTimeout(state.grammarTimer)
-    if (state.personaTimer) clearTimeout(state.personaTimer)
+    if (state.grammarTimer) {
+      console.log(`[Store-Content] Clearing existing grammar timer`)
+      clearTimeout(state.grammarTimer)
+    }
+    if (state.personaTimer) {
+      console.log(`[Store-Content] Clearing existing persona timer`)
+      clearTimeout(state.personaTimer)
+    }
     
     // Set up grammar pipeline (500ms debounce)
+    console.log(`[Store-Content] Setting up grammar timer (500ms delay)`)
     const grammarTimer = setTimeout(() => {
+      console.log(`[Store-Content] Grammar timer triggered, requesting suggestions`)
       state.requestGrammarSuggestions()
     }, 500)
     
     // Set up persona pipeline (3s idle period)
+    console.log(`[Store-Content] Setting up persona timer (3s delay)`)
     const personaTimer = setTimeout(() => {
+      console.log(`[Store-Content] Persona timer triggered, requesting insights`)
       state.requestPersonaSuggestions()
     }, 3000)
     
@@ -165,17 +212,60 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   
   loadDocument: async (id) => {
     const state = get()
+    console.log(`[Store-LoadDoc] Loading document ${id}`)
+    
     const doc = await state.documentService.getDocument(id)
     
     if (doc) {
+      console.log(`[Store-LoadDoc] Document loaded: "${doc.title}", content length: ${doc.content.length}`)
+      
       set({ 
         currentDocument: doc, 
         content: doc.content 
       })
       
-      // Load existing suggestions
-      const suggestions = await state.suggestionService.getDocumentSuggestions(id)
-      set({ suggestions })
+      // Only load pending suggestions that are still valid for the current text
+      console.log(`[Store-LoadDoc] Loading pending suggestions for document ${id}`)
+      const allPendingSuggestions = await state.suggestionService.getPendingSuggestions(id)
+      console.log(`[Store-LoadDoc] Found ${allPendingSuggestions.length} pending suggestions in database`)
+      
+      // Filter suggestions to only include those that are still valid for the current text
+      const validSuggestions = allPendingSuggestions.filter(suggestion => {
+        const { start, end } = suggestion.text_range
+        // Check if the suggestion's text range is still valid and matches the expected text
+        if (start < 0 || end > doc.content.length || start >= end) {
+          console.log(`[Store-LoadDoc] Invalid range for suggestion "${suggestion.original_text}": ${start}-${end} (content length: ${doc.content.length})`)
+          return false
+        }
+        
+        const currentText = doc.content.slice(start, end)
+        const isValid = currentText === suggestion.original_text
+        if (!isValid) {
+          console.log(`[Store-LoadDoc] Text mismatch for suggestion: expected "${suggestion.original_text}", found "${currentText}"`)
+        }
+        return isValid
+      })
+      
+      console.log(`[Store-LoadDoc] ${validSuggestions.length} suggestions are still valid`)
+      
+      // If we filtered out invalid suggestions, mark them as rejected in the database
+      const invalidSuggestions = allPendingSuggestions.filter(s => !validSuggestions.includes(s))
+      if (invalidSuggestions.length > 0) {
+        console.log(`[Store-LoadDoc] Marking ${invalidSuggestions.length} invalid suggestions as rejected`)
+        const rejectionPromises = invalidSuggestions.map(s => 
+          state.suggestionService.updateSuggestionStatus(s.id, 'rejected')
+        )
+        await Promise.all(rejectionPromises)
+        console.log(`[Store-LoadDoc] Successfully rejected ${invalidSuggestions.length} invalid suggestions`)
+      }
+      
+      // Deduplicate valid suggestions
+      const deduplicatedSuggestions = deduplicateSuggestions(validSuggestions)
+      
+      set({ suggestions: deduplicatedSuggestions })
+      console.log(`[Store-LoadDoc] Document loaded with ${deduplicatedSuggestions.length} deduplicated suggestions`)
+    } else {
+      console.error(`[Store-LoadDoc] Failed to load document ${id}`)
     }
   },
   
@@ -259,11 +349,19 @@ export const useWritingStore = create<WritingState>((set, get) => ({
     const state = get()
     if (!state.currentDocument || state.isAnalyzing || !state.content.trim()) return
     
+    const requestId = Math.random().toString(36).substr(2, 9)
+    console.log(`[Store-Grammar-${requestId}] Starting grammar request for document ${state.currentDocument.id}`)
+    console.log(`[Store-Grammar-${requestId}] Current content length: ${state.content.length}`)
+    console.log(`[Store-Grammar-${requestId}] Current suggestions count: ${state.suggestions.length}`)
+    
     set({ isAnalyzing: true })
     
     try {
       // Use AI service to analyze grammar
+      console.log(`[Store-Grammar-${requestId}] Calling AI service...`)
       const analysis = await state.aiService.analyzeGrammar(state.content, state.currentDocument.id)
+      
+      console.log(`[Store-Grammar-${requestId}] AI service returned ${analysis.suggestions.length} suggestions`)
       
       if (analysis.suggestions.length > 0) {
         // Convert to database format and save
@@ -272,20 +370,33 @@ export const useWritingStore = create<WritingState>((set, get) => ({
           state.currentDocument.id
         )
         
+        console.log(`[Store-Grammar-${requestId}] Creating ${suggestionInserts.length} suggestions in database`)
+        
         // Create suggestions in database
         const newSuggestions = await state.suggestionService.bulkCreateSuggestions(suggestionInserts)
         
+        console.log(`[Store-Grammar-${requestId}] Database created ${newSuggestions.length} suggestions`)
+        
         // Add to current suggestions
         if (newSuggestions.length > 0) {
-          set((state) => ({
-            suggestions: [...state.suggestions, ...newSuggestions]
-          }))
+          console.log(`[Store-Grammar-${requestId}] Adding suggestions to store. Current count: ${state.suggestions.length}`)
+          
+          set((state) => {
+            const combinedSuggestions = [...state.suggestions, ...newSuggestions]
+            const deduplicatedSuggestions = deduplicateSuggestions(combinedSuggestions)
+            console.log(`[Store-Grammar-${requestId}] Final suggestions count after deduplication: ${deduplicatedSuggestions.length}`)
+            
+            return { suggestions: deduplicatedSuggestions }
+          })
         }
+      } else {
+        console.log(`[Store-Grammar-${requestId}] No suggestions to add`)
       }
       
     } catch (error) {
-      console.error('Error requesting grammar suggestions:', error)
+      console.error(`[Store-Grammar-${requestId}] Error requesting grammar suggestions:`, error)
     } finally {
+      console.log(`[Store-Grammar-${requestId}] Grammar analysis completed`)
       set({ isAnalyzing: false })
     }
   },
