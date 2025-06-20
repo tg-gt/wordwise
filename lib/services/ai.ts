@@ -10,6 +10,14 @@ export interface GrammarAnalysis {
   }>
 }
 
+interface GrammarSuggestion {
+  type: 'grammar' | 'spelling' | 'style'
+  text_range: { start: number; end: number }
+  original_text: string
+  suggestion: string
+  explanation: string
+}
+
 export interface PersonaAnalysisResponse {
   success: boolean
   data: {
@@ -48,7 +56,7 @@ export class AIService {
       console.log(`[AI-Grammar-${requestId}] Received ${result.suggestions?.length || 0} suggestions`)
       
       if (result.suggestions?.length > 0) {
-        console.log(`[AI-Grammar-${requestId}] Suggestions:`, result.suggestions.map((s: any) => ({
+        console.log(`[AI-Grammar-${requestId}] Suggestions:`, result.suggestions.map((s: GrammarSuggestion) => ({
           type: s.type,
           original: s.original_text,
           suggestion: s.suggestion,
@@ -56,7 +64,7 @@ export class AIService {
         })))
         
         // Check for duplicates
-        const originalTexts = result.suggestions.map((s: any) => s.original_text)
+        const originalTexts = result.suggestions.map((s: GrammarSuggestion) => s.original_text)
         const duplicates = originalTexts.filter((text: string, index: number) => originalTexts.indexOf(text) !== index)
         if (duplicates.length > 0) {
           console.warn(`[AI-Grammar-${requestId}] WARNING: Duplicate suggestions detected for:`, [...new Set(duplicates)])
