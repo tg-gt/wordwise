@@ -383,7 +383,13 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   
   // Phase 2: Persona actions
   setActivePersona: (persona: PersonaType) => {
+    const state = get()
     set({ activePersona: persona, personaOutput: null })
+    
+    // Trigger persona insight generation immediately if we have content to analyze
+    if (state.currentDocument && !state.isAnalyzingPersona && state.content.trim()) {
+      state.requestPersonaSuggestions()
+    }
   },
   
   ratePersonaOutput: async (rating: number) => {
