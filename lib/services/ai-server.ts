@@ -15,6 +15,18 @@ export interface GrammarAnalysis {
   }>
 }
 
+// Helper function to extract JSON from markdown-wrapped response
+function extractJsonFromResponse(content: string): string {
+  // Remove markdown code blocks if present
+  const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/)
+  if (jsonMatch) {
+    return jsonMatch[1]
+  }
+  
+  // If no markdown blocks, assume it's already clean JSON
+  return content.trim()
+}
+
 export class AIServerService {
   async analyzeGrammar(text: string, contextWindow = 500): Promise<GrammarAnalysis> {
     try {
@@ -40,7 +52,7 @@ Focus on:
 - Spelling mistakes
 - Style improvements (wordiness, clarity, flow)
 
-Respond in JSON format:
+Respond ONLY with valid JSON in this exact format (no markdown formatting):
 {
   "suggestions": [
     {
@@ -54,7 +66,8 @@ Respond in JSON format:
   ]
 }
 
-Only suggest changes that significantly improve the writing. Be conservative - don't over-correct.`
+Only suggest changes that significantly improve the writing. Be conservative - don't over-correct.
+If no issues are found, return: {"suggestions": []}`
           },
           {
             role: 'user',
@@ -70,7 +83,10 @@ Only suggest changes that significantly improve the writing. Be conservative - d
         throw new Error('No response from OpenAI')
       }
 
-      const parsed = JSON.parse(content) as {
+      // Extract JSON from potentially markdown-wrapped response
+      const cleanJson = extractJsonFromResponse(content)
+      
+      const parsed = JSON.parse(cleanJson) as {
         suggestions: Array<{
           type: 'grammar' | 'spelling' | 'style'
           start: number
@@ -81,14 +97,88 @@ Only suggest changes that significantly improve the writing. Be conservative - d
         }>
       }
 
-      // Adjust positions to account for context window offset
-      const adjustedSuggestions = parsed.suggestions.map(suggestion => ({
-        ...suggestion,
-        text_range: {
-          start: suggestion.start + offset,
-          end: suggestion.end + offset
-        }
-      }))
+      // Adjust positions to account for context window offset and validate them
+      const adjustedSuggestions = parsed.suggestions
+        .map(suggestion => {
+          const adjustedStart = suggestion.start + offset
+          const adjustedEnd = suggestion.end + offset
+          
+          // Validate the text range against the actual text
+          let actualStart = adjustedStart
+          let actualEnd = adjustedEnd
+          
+          // Check if the positions are valid
+          if (adjustedStart >= 0 && adjustedEnd <= text.length) {
+            const textAtRange = text.slice(adjustedStart, adjustedEnd)
+            
+            // If the text doesn't match, try to find the correct positions
+            if (textAtRange !== suggestion.original_text) {
+              // Try to find the text in the vicinity
+              const searchRadius = 5
+              let found = false
+              
+              for (let startOffset = -searchRadius; startOffset <= searchRadius && !found; startOffset++) {
+                for (let endOffset = -searchRadius; endOffset <= searchRadius && !found; endOffset++) {
+                  const testStart = Math.max(0, adjustedStart + startOffset)
+                  const testEnd = Math.min(text.length, adjustedEnd + endOffset)
+                  
+                  if (testStart < testEnd) {
+                    const testText = text.slice(testStart, testEnd)
+                    if (testText === suggestion.original_text) {
+                      actualStart = testStart
+                      actualEnd = testEnd
+                      found = true
+                    }
+                  }
+                }
+              }
+              
+              // If we still can't find it, try a broader search
+              if (!found) {
+                const index = text.indexOf(suggestion.original_text)
+                if (index !== -1) {
+                  actualStart = index
+                  actualEnd = index + suggestion.original_text.length
+                  found = true
+                }
+              }
+              
+              // If we still can't find it, skip this suggestion
+              if (!found) {
+                console.warn('Could not find correct positions for suggestion:', {
+                  original: suggestion.original_text,
+                  aiPositions: { start: adjustedStart, end: adjustedEnd },
+                  textAtAiPositions: textAtRange,
+                  fullText: text
+                })
+                return null
+              }
+            }
+          } else {
+            // Positions are out of bounds, try to find the text
+            const index = text.indexOf(suggestion.original_text)
+            if (index !== -1) {
+              actualStart = index
+              actualEnd = index + suggestion.original_text.length
+            } else {
+              console.warn('Suggestion positions out of bounds and text not found:', {
+                original: suggestion.original_text,
+                positions: { start: adjustedStart, end: adjustedEnd },
+                textLength: text.length
+              })
+              return null
+            }
+          }
+          
+          return {
+            ...suggestion,
+            text_range: {
+              start: actualStart,
+              end: actualEnd
+            }
+          }
+        })
+        .filter((suggestion): suggestion is NonNullable<typeof suggestion> => suggestion !== null) // Remove null suggestions
 
       return { suggestions: adjustedSuggestions }
 

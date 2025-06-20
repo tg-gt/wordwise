@@ -218,15 +218,25 @@ export const useWritingStore = create<WritingState>((set, get) => ({
     
     set({ content: newContent })
     
-    // Update suggestion status
+    // Update accepted suggestion status
     await state.suggestionService.updateSuggestionStatus(suggestionId, 'accepted')
     
-    // Remove from suggestions list
-    const updatedSuggestions = state.suggestions.filter(s => s.id !== suggestionId)
-    set({ suggestions: updatedSuggestions })
+    // Clear ALL suggestions - they're all invalid now due to text changes
+    const allSuggestionIds = state.suggestions.map(s => s.id)
+    const rejectionPromises = allSuggestionIds
+      .filter(id => id !== suggestionId)
+      .map(id => state.suggestionService.updateSuggestionStatus(id, 'rejected'))
+    
+    await Promise.all(rejectionPromises)
+    
+    // Clear suggestions from UI
+    set({ suggestions: [] })
     
     // Auto-save after accepting suggestion
     setTimeout(() => state.saveDocument(), 500)
+    
+    // Trigger re-analysis after a delay
+    setTimeout(() => state.requestGrammarSuggestions(), 1000)
   },
   
   rejectSuggestion: async (suggestionId) => {
@@ -239,6 +249,8 @@ export const useWritingStore = create<WritingState>((set, get) => ({
     const updatedSuggestions = state.suggestions.filter(s => s.id !== suggestionId)
     set({ suggestions: updatedSuggestions })
   },
+
+
   
   toggleSidebar: () => {
     set((state) => ({ sidebarVisible: !state.sidebarVisible }))
