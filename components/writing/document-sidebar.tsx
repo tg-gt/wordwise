@@ -13,7 +13,6 @@ import {
   X, 
   FileText,
   Loader2,
-  Calendar,
   Clock
 } from 'lucide-react'
 import { Document } from '@/lib/types/database'

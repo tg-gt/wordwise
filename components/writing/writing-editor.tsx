@@ -35,13 +35,14 @@ export function WritingEditor({ userId }: WritingEditorProps) {
     documentSidebarVisible,
     updateContent,
     saveDocument,
-    createNewDocument,
     acceptSuggestion,
     rejectSuggestion,
     toggleSidebar,
     toggleDocumentSidebar,
     cleanup
   } = useWritingStore()
+
+  const wordCount = content.split(/\s+/).filter(word => word.length > 0).length
 
   // Initialize with new document on mount if no documents exist
   useEffect(() => {
@@ -74,8 +75,6 @@ export function WritingEditor({ userId }: WritingEditorProps) {
       saveDocument()
     }
   }
-
-  const wordCount = content.split(/\s+/).filter(word => word.length > 0).length
 
   return (
     <div className="h-screen flex bg-background">
