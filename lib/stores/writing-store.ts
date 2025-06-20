@@ -89,6 +89,11 @@ export const useWritingStore = create<WritingState>((set, get) => ({
     const state = get()
     set({ content })
     
+    // Clear existing suggestions when user starts typing
+    if (state.suggestions.length > 0) {
+      set({ suggestions: [] })
+    }
+    
     // Clear existing timers
     if (state.grammarTimer) clearTimeout(state.grammarTimer)
     if (state.personaTimer) clearTimeout(state.personaTimer)
