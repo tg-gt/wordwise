@@ -76,14 +76,19 @@ export function DocumentSidebar({ userId }: DocumentSidebarProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
-    const diffTime = now.getTime() - date.getTime()
+    
+    // Reset time to start of day for both dates to compare calendar days
+    const docDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    
+    const diffTime = todayDate.getTime() - docDate.getTime()
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
     
     // Handle negative time differences (server time slightly ahead of client)
     if (diffDays <= 0) {
       return `Today ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
     } else if (diffDays === 1) {
-      return 'Yesterday'
+      return `Yesterday ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
     } else if (diffDays < 7) {
       return `${diffDays} days ago`
     } else {
