@@ -77,7 +77,7 @@ Analyze the provided text and identify issues that need correction. For each iss
 Focus on:
 - Grammar errors (subject-verb agreement, tense consistency, etc.)
 - Spelling mistakes
-- Style improvements (wordiness, clarity, flow)
+- Style improvements (wordiness, clarity, flow) if significantly noticeable
 
 Respond ONLY with valid JSON in this exact format (no markdown formatting):
 {
@@ -101,8 +101,8 @@ If no issues are found, return: {"suggestions": []}`
             content: `Please analyze this text for grammar, spelling, and style issues:\n\n"${analysisText}"`
           }
         ],
-        temperature: 0.3,
-        max_tokens: 1500, // Increased for full document analysis
+        temperature: 0.1,
+        max_tokens: 5000, // Increased for full document analysis
       })
 
       const content = response.choices[0]?.message?.content
@@ -222,8 +222,8 @@ Be authentic to the persona's voice and perspective. Keep insights meaningful bu
             content: `Please analyze this writing and provide ${isTwitterPersona ? 'tweet-worthy insights' : 'archetypal guidance'}:\n\n"${analysisText}"`
           }
         ],
-        temperature: 0.7, // Higher temperature for creative persona analysis
-        max_tokens: 800,
+        temperature: 0.85, // Higher temperature for creative persona analysis
+        max_tokens: 1000,
       })
 
       const content = response.choices[0]?.message?.content
