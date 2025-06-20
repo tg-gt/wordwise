@@ -55,13 +55,12 @@ export default async function Home() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
               Tweet Better with{" "}
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                AI Feedback
+                AI Insight
               </span>
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              AnimusWriter harnesses the power of Jung&apos;s <strong>Anima & Animus</strong> archetypes alongside AI personas to transform your writing. 
-              Balance intuitive creativity with strategic clarity while getting real-time grammar and style improvements.
+              Turn your <strong>daily pages</strong> into powerful insights. Write your stream-of-consciousness journal entries, let deep psychological feedback from Jung&apos;s <strong>Anima & Animus</strong> archetypes guide your reflection, and then extract tweet-worthy ideas from legendary twitter poasters.
             </p>
           </div>
 
@@ -69,7 +68,7 @@ export default async function Home() {
             <Button asChild size="lg" className="text-lg px-8 py-6">
               <Link href="/auth/sign-up">
                 <PenTool className="w-5 h-5 mr-2" />
-                Start Writing Free
+                Start Your Daily Pages
               </Link>
             </Button>
             
@@ -94,8 +93,8 @@ export default async function Home() {
               The Power of <span className="text-blue-600">Anima</span> & <span className="text-purple-600">Animus</span>
             </h2>
                          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-               Based on Carl Jung&apos;s archetypal psychology, AnimusWriter provides you with two complementary AI voices 
-               that mirror the dual nature of human consciousness and creativity.
+               Your daily writing practice becomes a dialogue with your unconscious. Jung&apos;s archetypal psychology provides two complementary AI voices 
+               that help you process your stream-of-consciousness thoughts into actionable insights and creative breakthroughs.
              </p>
           </div>
 
@@ -196,6 +195,66 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Daily Pages Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <Badge variant="outline" className="mb-6">
+            <PenTool className="w-4 h-4 mr-2" />
+            Daily Writing Practice
+          </Badge>
+          
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+            The Power of Daily Pages
+          </h2>
+          
+          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+            Daily pages are your unfiltered, stream-of-consciousness morning writing ritual. 
+            Three pages of whatever crosses your mind - no editing, no judgment, just pure mental clearing.
+          </p>
+          
+          <div className="grid md:grid-cols-2 gap-8 text-left">
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                    <span className="text-xl">🌊</span>
+                  </div>
+                  <CardTitle className="text-lg">Stream-of-Consciousness Flow</CardTitle>
+                </div>
+                <CardDescription className="text-base leading-relaxed">
+                  Write without stopping, without editing, without thinking. Let your thoughts pour onto the page 
+                  in their raw, unfiltered form. This practice clears mental clutter and accesses deeper creativity.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                    <span className="text-xl">🧠</span>
+                  </div>
+                  <CardTitle className="text-lg">AI-Powered Extraction</CardTitle>
+                </div>
+                <CardDescription className="text-base leading-relaxed">
+                  Your messy thoughts become structured insights. Extract tweetable wisdom, identify recurring patterns, 
+                  and discover actionable steps hidden in your subconscious ramblings.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+          
+          <div className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-lg">
+            <p className="text-lg font-medium mb-2">
+              &quot;The pages are meant to be, simply, the act of moving the hand across the page and writing down whatever comes to mind. Nothing fancy.&quot;
+            </p>
+            <p className="text-sm text-muted-foreground">
+              — Julia Cameron, The Artist&apos;s Way
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="max-w-6xl mx-auto">
@@ -212,10 +271,10 @@ export default async function Home() {
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <Brain className="w-10 h-10 text-blue-600 mb-2" />
-                <CardTitle>Anima & Animus Insights</CardTitle>
+                <CardTitle>Tweet Extraction & Insights</CardTitle>
                 <CardDescription>
-                  Experience balanced feedback from your Anima (creative intuition) and Animus (strategic clarity), 
-                  plus insights from Twitter thought leaders like Naval and Paul Graham.
+                  Transform your daily journaling into shareable wisdom. Your Anima finds the creative gems while your Animus 
+                  crafts them into tweet-worthy insights, plus feedback from thought leaders like Naval and Paul Graham.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -283,10 +342,10 @@ export default async function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              How AnimusWriter Works
+              Your Daily Pages Workflow
             </h2>
             <p className="text-xl text-muted-foreground">
-              Start writing better in three simple steps
+              Transform your morning journaling into powerful insights
             </p>
           </div>
 
@@ -295,10 +354,10 @@ export default async function Home() {
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="font-bold text-blue-600 dark:text-blue-400">1</span>
               </div>
-              <h3 className="font-semibold mb-2">Create Your Document</h3>
+              <h3 className="font-semibold mb-2">Start Your Daily Pages</h3>
               <p className="text-muted-foreground">
-                Start with a new document or import your existing writing. 
-                Our clean interface lets you focus on your ideas.
+                Begin your stream-of-consciousness journaling session. Write freely about whatever&apos;s on your mind - 
+                thoughts, dreams, worries, or creative ideas. No editing, just pure flow.
               </p>
             </div>
 
@@ -306,10 +365,10 @@ export default async function Home() {
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="font-bold text-green-600 dark:text-green-400">2</span>
               </div>
-              <h3 className="font-semibold mb-2">Write & Get Insights</h3>
+              <h3 className="font-semibold mb-2">Get Archetypal Feedback</h3>
               <p className="text-muted-foreground">
-                As you write, your Anima nurtures creativity while your Animus challenges growth. 
-                Get real-time grammar suggestions, style improvements, and archetypal insights.
+                Your Anima provides intuitive wisdom about your emotional patterns and creative insights. 
+                Your Animus extracts actionable strategies and challenges you to turn thoughts into tweets or concrete actions.
               </p>
             </div>
 
@@ -317,10 +376,10 @@ export default async function Home() {
               <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="font-bold text-purple-600 dark:text-purple-400">3</span>
               </div>
-              <h3 className="font-semibold mb-2">Improve & Polish</h3>
+              <h3 className="font-semibold mb-2">Extract & Share</h3>
               <p className="text-muted-foreground">
-                Accept suggestions with one click, get detailed explanations, 
-                and watch your writing improve with every edit.
+                Discover tweet-worthy insights from your raw thoughts. Turn your private journaling into public wisdom, 
+                or simply gain deeper self-understanding through psychological reflection.
               </p>
             </div>
           </div>
@@ -331,16 +390,16 @@ export default async function Home() {
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Ready to unlock your creative potential?
+            Ready to transform your daily pages?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join writers who are balancing their Anima & Animus to create authentic, powerful content
+            Turn your morning journaling into tweet-worthy insights and deep psychological understanding
           </p>
           
           <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-6">
             <Link href="/auth/sign-up">
               <PenTool className="w-5 h-5 mr-2" />
-              Get Started Free
+              Begin Daily Pages
             </Link>
           </Button>
         </div>
