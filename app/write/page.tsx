@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { WritingEditor } from "@/components/writing/writing-editor"
+import { AnimusWriterBanner } from "@/components/writing/animus-writer-banner"
 
 export default async function WritePage() {
   const supabase = await createClient()
@@ -10,5 +11,12 @@ export default async function WritePage() {
     redirect("/auth/login")
   }
 
-  return <WritingEditor userId={data.user.id} />
+  return (
+    <div className="h-screen flex flex-col">
+      <AnimusWriterBanner />
+      <div className="flex-1 overflow-hidden">
+        <WritingEditor userId={data.user.id} />
+      </div>
+    </div>
+  )
 } 

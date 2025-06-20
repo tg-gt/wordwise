@@ -90,7 +90,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
   }
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="h-full flex bg-background">
       {/* Document Sidebar */}
       {documentSidebarVisible && (
         <DocumentSidebar userId={userId} />
