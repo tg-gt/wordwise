@@ -97,9 +97,9 @@ export function DocumentSidebar({ userId }: DocumentSidebarProps) {
   }
 
   return (
-    <div className="w-80 writing-sidebar border-r flex flex-col h-full shadow-elegant">
+    <div className="w-80 persona-themed-sidebar border-r flex flex-col h-full shadow-elegant">
       {/* Header */}
-      <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+      <div className="p-4 border-b persona-themed-accent-light">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>

@@ -39,6 +39,19 @@
     --writing-text-light: 0 0% 45%;
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
+    
+    /* Persona-specific colors */
+    --anima-bg: 350 100% 98%;
+    --anima-sidebar: 350 100% 96%;
+    --anima-accent: 350 70% 60%;
+    --anima-accent-light: 350 100% 95%;
+    --anima-glow: 350 70% 60%;
+    
+    --animus-bg: 210 100% 98%;
+    --animus-sidebar: 210 100% 96%;
+    --animus-accent: 210 70% 60%;
+    --animus-accent-light: 210 100% 95%;
+    --animus-glow: 210 70% 60%;
   }
   
   .dark {
@@ -76,6 +89,19 @@
     --writing-text-light: 0 0% 65%;
     --success: 142 76% 45%;
     --warning: 38 92% 60%;
+    
+    /* Persona-specific colors for dark mode */
+    --anima-bg: 350 20% 8%;
+    --anima-sidebar: 350 25% 12%;
+    --anima-accent: 350 70% 65%;
+    --anima-accent-light: 350 40% 15%;
+    --anima-glow: 350 70% 65%;
+    
+    --animus-bg: 210 20% 8%;
+    --animus-sidebar: 210 25% 12%;
+    --animus-accent: 210 70% 65%;
+    --animus-accent-light: 210 40% 15%;
+    --animus-glow: 210 70% 65%;
   }
 }
 
@@ -176,5 +202,42 @@
   @keyframes slideIn {
     from { opacity: 0; transform: translateX(-8px); }
     to { opacity: 1; transform: translateX(0); }
+  }
+  
+  /* Persona-specific theming */
+  .persona-anima {
+    --current-bg: var(--anima-bg);
+    --current-sidebar: var(--anima-sidebar);
+    --current-accent: var(--anima-accent);
+    --current-accent-light: var(--anima-accent-light);
+    --current-glow: var(--anima-glow);
+  }
+  
+  .persona-animus {
+    --current-bg: var(--animus-bg);
+    --current-sidebar: var(--animus-sidebar);
+    --current-accent: var(--animus-accent);
+    --current-accent-light: var(--animus-accent-light);
+    --current-glow: var(--animus-glow);
+  }
+  
+  .persona-themed-bg {
+    background: hsl(var(--current-bg, var(--writing-bg)));
+    transition: background-color 0.3s ease;
+  }
+  
+  .persona-themed-sidebar {
+    background: hsl(var(--current-sidebar, var(--writing-sidebar)));
+    transition: background-color 0.3s ease;
+  }
+  
+  .persona-themed-accent-light {
+    background: hsl(var(--current-accent-light, var(--writing-accent-light)));
+    transition: background-color 0.3s ease;
+  }
+  
+  .persona-themed-glow {
+    box-shadow: 0 0 20px hsl(var(--current-glow, var(--writing-accent)) / 0.1);
+    transition: box-shadow 0.3s ease;
   }
 }

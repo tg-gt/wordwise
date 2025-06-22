@@ -89,8 +89,14 @@ export function WritingEditor({ userId }: WritingEditorProps) {
     }
   }
 
+  const getPersonaThemeClass = () => {
+    if (activePersona === 'anima') return 'persona-anima'
+    if (activePersona === 'animus') return 'persona-animus'
+    return ''
+  }
+
   return (
-    <div className="h-full flex writing-surface">
+    <div className={`h-full flex writing-surface ${getPersonaThemeClass()}`}>
       {/* Document Sidebar */}
       {documentSidebarVisible && (
         <div className="animate-slide-in">
@@ -204,9 +210,10 @@ export function WritingEditor({ userId }: WritingEditorProps) {
         </div>
 
         {/* Writing Area */}
-        <div className="flex-1 p-8 bg-gradient-to-b from-transparent to-purple-50/10 dark:to-purple-950/10">
+        <div className="flex-1 p-8 persona-themed-bg relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 persona-themed-glow"></div>
           {currentDocument ? (
-            <div className="max-w-4xl mx-auto h-full">
+            <div className="max-w-4xl mx-auto h-full relative z-10">
               <textarea
                 ref={textareaRef}
                 value={content}
@@ -218,7 +225,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
               />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-center text-writing-light animate-fade-in">
+            <div className="flex items-center justify-center h-full text-center text-writing-light animate-fade-in relative z-10">
               <div className="max-w-md">
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full blur-lg opacity-20"></div>
@@ -239,8 +246,8 @@ export function WritingEditor({ userId }: WritingEditorProps) {
 
       {/* Suggestions Sidebar */}
       {sidebarVisible && (
-        <div className="w-80 border-l writing-sidebar flex flex-col shadow-elegant animate-slide-in">
-          <div className="p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+        <div className="w-80 border-l persona-themed-sidebar flex flex-col shadow-elegant animate-slide-in">
+          <div className="p-4 border-b persona-themed-accent-light">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full animate-pulse"></div>
               <h3 className="font-semibold text-sm text-writing">AI Insights</h3>
@@ -272,13 +279,25 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                       Analyzing with {activePersona.replace('twitter_', '').replace('_', ' ')}...
                     </div>
                   ) : personaOutput ? (
-                    <Card className="p-4 shadow-subtle bg-gradient-to-br from-white to-purple-50/30 dark:from-card dark:to-purple-950/10 border-purple-200/50 dark:border-purple-800/30 animate-fade-in">
+                    <Card className={`p-4 shadow-subtle animate-fade-in transition-elegant ${
+                      activePersona === 'anima' 
+                        ? 'bg-gradient-to-br from-white to-pink-50/30 dark:from-card dark:to-pink-950/10 border-pink-200/50 dark:border-pink-800/30' 
+                        : activePersona === 'animus'
+                          ? 'bg-gradient-to-br from-white to-blue-50/30 dark:from-card dark:to-blue-950/10 border-blue-200/50 dark:border-blue-800/30'
+                          : 'bg-gradient-to-br from-white to-purple-50/30 dark:from-card dark:to-purple-950/10 border-purple-200/50 dark:border-purple-800/30'
+                    }`}>
                       <div className="space-y-3">
                         <div className="text-sm leading-relaxed text-writing">
                           {personaOutput.output_content}
                         </div>
                         {personaOutput.reasoning && (
-                          <div className="text-xs text-writing-light border-l-2 border-purple-300 dark:border-purple-700 pl-3 bg-purple-50/30 dark:bg-purple-950/20 py-2 rounded-r">
+                          <div className={`text-xs text-writing-light border-l-2 pl-3 py-2 rounded-r transition-elegant ${
+                            activePersona === 'anima' 
+                              ? 'border-pink-300 dark:border-pink-700 bg-pink-50/30 dark:bg-pink-950/20' 
+                              : activePersona === 'animus'
+                                ? 'border-blue-300 dark:border-blue-700 bg-blue-50/30 dark:bg-blue-950/20'
+                                : 'border-purple-300 dark:border-purple-700 bg-purple-50/30 dark:bg-purple-950/20'
+                          }`}>
                             {personaOutput.reasoning}
                           </div>
                         )}
