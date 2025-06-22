@@ -97,21 +97,24 @@ export function DocumentSidebar({ userId }: DocumentSidebarProps) {
   }
 
   return (
-    <div className="w-80 bg-muted/30 border-r flex flex-col h-full">
+    <div className="w-80 writing-sidebar border-r flex flex-col h-full shadow-elegant">
       {/* Header */}
-      <div className="p-4 border-b">
+      <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-sm">Documents</h2>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+            <h2 className="font-semibold text-sm text-writing">Documents</h2>
+          </div>
           <Button 
             size="sm" 
             onClick={handleCreateNew}
-            className="h-8 px-3"
+            className="h-8 px-3 writing-accent hover:scale-105 transition-elegant shadow-subtle"
           >
             <Plus className="w-4 h-4 mr-1" />
             New
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-writing-light">
           {documents.length} document{documents.length !== 1 ? 's' : ''}
         </p>
       </div>
@@ -119,23 +122,30 @@ export function DocumentSidebar({ userId }: DocumentSidebarProps) {
       {/* Documents List */}
       <div className="flex-1 overflow-auto">
         {isLoadingDocuments ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin mr-2" />
-            <span className="text-sm text-muted-foreground">Loading documents...</span>
+          <div className="flex items-center justify-center py-12 animate-fade-in">
+            <div className="text-center">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3 text-purple-500" />
+              <span className="text-sm text-writing-light">Loading documents...</span>
+            </div>
           </div>
         ) : documents.length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground">
-            <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No documents yet</p>
-            <p className="text-xs mt-1">Create your first document to get started</p>
+          <div className="p-6 text-center text-writing-light animate-fade-in">
+            <div className="relative mb-4">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full blur-lg opacity-20"></div>
+              <FileText className="w-12 h-12 mx-auto relative text-blue-400 dark:text-blue-500" />
+            </div>
+            <p className="text-sm font-medium text-writing mb-1">No documents yet</p>
+            <p className="text-xs leading-relaxed">Create your first document to start your writing journey</p>
           </div>
         ) : (
-          <div className="p-2 space-y-2">
+          <div className="p-3 space-y-3">
             {documents.map((doc) => (
               <Card 
                 key={doc.id}
-                className={`p-3 cursor-pointer transition-colors hover:bg-accent ${
-                  currentDocument?.id === doc.id ? 'bg-accent border-primary' : ''
+                className={`p-4 cursor-pointer transition-elegant hover:shadow-subtle ${
+                  currentDocument?.id === doc.id 
+                    ? 'writing-accent-light border-purple-300 dark:border-purple-700 shadow-subtle' 
+                    : 'hover:bg-white/50 dark:hover:bg-background/50'
                 }`}
                 onClick={() => !editingId && handleSelectDocument(doc)}
               >

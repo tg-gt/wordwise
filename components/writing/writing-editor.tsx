@@ -90,16 +90,18 @@ export function WritingEditor({ userId }: WritingEditorProps) {
   }
 
   return (
-    <div className="h-full flex bg-background">
+    <div className="h-full flex writing-surface">
       {/* Document Sidebar */}
       {documentSidebarVisible && (
-        <DocumentSidebar userId={userId} />
+        <div className="animate-slide-in">
+          <DocumentSidebar userId={userId} />
+        </div>
       )}
 
       {/* Main Editor */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="border-b p-4 flex items-center justify-between">
+        <div className="border-b bg-white/50 dark:bg-background/50 backdrop-blur-sm p-4 flex items-center justify-between shadow-subtle">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Button 
@@ -140,7 +142,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
           <div className="flex items-center gap-2">
             {/* Word Count */}
             {currentDocument && (
-              <Badge variant="secondary">
+              <Badge variant="secondary" className="shadow-subtle bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300">
                 {wordCount} words
               </Badge>
             )}
@@ -149,7 +151,13 @@ export function WritingEditor({ userId }: WritingEditorProps) {
             {currentDocument && (
               <Badge 
                 variant={charCount >= MAX_CHARS ? "destructive" : charCount >= WARNING_THRESHOLD ? "secondary" : "outline"}
-                className={charCount >= WARNING_THRESHOLD ? "text-yellow-600 dark:text-yellow-400" : ""}
+                className={`shadow-subtle ${
+                  charCount >= MAX_CHARS 
+                    ? "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300" 
+                    : charCount >= WARNING_THRESHOLD 
+                      ? "bg-yellow-50 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-300" 
+                      : "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-300"
+                }`}
               >
                 {charCount}/{MAX_CHARS}
               </Badge>
@@ -157,7 +165,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
             
             {/* Analysis Status */}
             {isAnalyzing && (
-              <Badge variant="outline" className="flex items-center gap-1">
+              <Badge variant="outline" className="flex items-center gap-1 shadow-subtle bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-300 animate-pulse">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 Analyzing
               </Badge>
@@ -196,26 +204,31 @@ export function WritingEditor({ userId }: WritingEditorProps) {
         </div>
 
         {/* Writing Area */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-8 bg-gradient-to-b from-transparent to-purple-50/10 dark:to-purple-950/10">
           {currentDocument ? (
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={handleContentChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Start writing... Let your thoughts flow freely."
-              className="w-full h-full resize-none border-none outline-none text-lg leading-relaxed bg-transparent placeholder:text-muted-foreground/50"
-              spellCheck={false}
-            />
+            <div className="max-w-4xl mx-auto h-full">
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={handleContentChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Start writing... Let your thoughts flow freely."
+                className="w-full h-full resize-none border-none outline-none text-lg leading-relaxed bg-transparent placeholder:text-writing-light/70 text-writing focus:outline-none selection:bg-purple-200 dark:selection:bg-purple-900 transition-elegant"
+                spellCheck={false}
+              />
+            </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-center text-muted-foreground">
-              <div>
-                <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium mb-2">No document selected</h3>
-                <p className="text-sm">
+            <div className="flex items-center justify-center h-full text-center text-writing-light animate-fade-in">
+              <div className="max-w-md">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full blur-lg opacity-20"></div>
+                  <FileText className="w-20 h-20 mx-auto relative text-purple-400 dark:text-purple-500" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-writing">No document selected</h3>
+                <p className="text-writing-light leading-relaxed">
                   {documentSidebarVisible 
-                    ? "Select a document from the sidebar or create a new one" 
-                    : "Open the document sidebar to get started"
+                    ? "Select a document from the sidebar or create a new one to start writing" 
+                    : "Open the document sidebar to get started with your writing journey"
                   }
                 </p>
               </div>
@@ -226,10 +239,13 @@ export function WritingEditor({ userId }: WritingEditorProps) {
 
       {/* Suggestions Sidebar */}
       {sidebarVisible && (
-        <div className="w-80 border-l bg-muted/30 flex flex-col">
-          <div className="p-4 border-b">
-            <h3 className="font-semibold text-sm">AI Insights</h3>
-            <p className="text-xs text-muted-foreground mt-1">
+        <div className="w-80 border-l writing-sidebar flex flex-col shadow-elegant animate-slide-in">
+          <div className="p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full animate-pulse"></div>
+              <h3 className="font-semibold text-sm text-writing">AI Insights</h3>
+            </div>
+            <p className="text-xs text-writing-light">
               Persona insights & writing suggestions
             </p>
           </div>
@@ -256,13 +272,13 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                       Analyzing with {activePersona.replace('twitter_', '').replace('_', ' ')}...
                     </div>
                   ) : personaOutput ? (
-                    <Card className="p-3">
-                      <div className="space-y-2">
-                        <div className="text-sm leading-relaxed">
+                    <Card className="p-4 shadow-subtle bg-gradient-to-br from-white to-purple-50/30 dark:from-card dark:to-purple-950/10 border-purple-200/50 dark:border-purple-800/30 animate-fade-in">
+                      <div className="space-y-3">
+                        <div className="text-sm leading-relaxed text-writing">
                           {personaOutput.output_content}
                         </div>
                         {personaOutput.reasoning && (
-                          <div className="text-xs text-muted-foreground border-l-2 border-muted pl-2">
+                          <div className="text-xs text-writing-light border-l-2 border-purple-300 dark:border-purple-700 pl-3 bg-purple-50/30 dark:bg-purple-950/20 py-2 rounded-r">
                             {personaOutput.reasoning}
                           </div>
                         )}
@@ -271,7 +287,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                             size="sm" 
                             variant="outline"
                             onClick={() => ratePersonaOutput(1)}
-                            className="flex-1"
+                            className="flex-1 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-950/20 transition-elegant"
                           >
                             👍
                           </Button>
@@ -279,7 +295,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                             size="sm" 
                             variant="outline"
                             onClick={() => ratePersonaOutput(-1)}
-                            className="flex-1"
+                            className="flex-1 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-950/20 transition-elegant"
                           >
                             👎
                           </Button>
@@ -310,37 +326,37 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                   ) : (
                     <div className="space-y-3">
                       {suggestions.map((suggestion) => (
-                <Card key={suggestion.id} className="p-3">
-                  <div className="space-y-2">
+                <Card key={suggestion.id} className="p-4 shadow-subtle bg-gradient-to-br from-white to-blue-50/30 dark:from-card dark:to-blue-950/10 border-blue-200/50 dark:border-blue-800/30 animate-fade-in">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Badge 
                         variant={
                           suggestion.type === 'grammar' ? 'destructive' :
                           suggestion.type === 'spelling' ? 'default' : 'secondary'
                         }
-                        className="text-xs"
+                        className="text-xs shadow-subtle"
                       >
                         {suggestion.type}
                       </Badge>
                     </div>
                     
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Original: </span>
-                        <span className="bg-red-100 dark:bg-red-900/30 px-1 rounded">
+                        <span className="text-writing-light font-medium">Original: </span>
+                        <span className="bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded text-writing">
                           {suggestion.original_text}
                         </span>
                       </div>
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Suggestion: </span>
-                        <span className="bg-green-100 dark:bg-green-900/30 px-1 rounded">
+                        <span className="text-writing-light font-medium">Suggestion: </span>
+                        <span className="bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded text-writing">
                           {suggestion.suggestion}
                         </span>
                       </div>
                     </div>
                     
                     {suggestion.explanation && (
-                      <div className="text-xs text-muted-foreground border-l-2 border-muted pl-2">
+                      <div className="text-xs text-writing-light border-l-2 border-blue-300 dark:border-blue-700 pl-3 bg-blue-50/30 dark:bg-blue-950/20 py-2 rounded-r">
                         {suggestion.explanation}
                       </div>
                     )}
@@ -349,7 +365,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                       <Button 
                         size="sm" 
                         onClick={() => acceptSuggestion(suggestion.id)}
-                        className="flex-1"
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white transition-elegant"
                       >
                         <Check className="w-3 h-3 mr-1" />
                         Accept
@@ -358,7 +374,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                         variant="outline" 
                         size="sm" 
                         onClick={() => rejectSuggestion(suggestion.id)}
-                        className="flex-1"
+                        className="flex-1 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-950/20 transition-elegant"
                       >
                         <X className="w-3 h-3 mr-1" />
                         Reject
