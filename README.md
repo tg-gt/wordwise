@@ -36,15 +36,15 @@ Inspired by Julia Cameron's "The Artist's Way," daily pages are three pages of s
 - Document management with auto-save
 - Contextual AI feedback as you write
 
-### 🐦 **Content Extraction**
-- Transform journal entries into tweet-worthy insights
-- Extract actionable strategies from raw thoughts
-- Get feedback styled after thought leaders (Naval, Paul Graham, etc.)
-- Identify recurring patterns and themes
+### 🐦 **Tweet Extraction & Content Creation**
+- **Smart Content Mining**: Transform your messy, stream-of-consciousness thoughts into polished, shareable insights
+- **Thought Leader Styling**: Get your extracted tweets refined in the voice of legendary Twitter personalities like Naval Ravikant and Paul Graham
+- **Pattern Recognition**: Identify recurring themes and breakthrough ideas across multiple journaling sessions
+- **One-Click Sharing**: Convert private journaling breakthroughs into public wisdom ready for social media
+- **Context Preservation**: Maintain the essence and authenticity of your original thoughts while making them tweet-ready
 
 ### 📱 **Modern Interface**
 - Clean, distraction-free writing environment
-- Dark/light theme support
 - Responsive design for all devices
 - Intuitive document organization
 
