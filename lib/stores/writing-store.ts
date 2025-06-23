@@ -29,6 +29,10 @@ interface WritingState {
   personaOutput: PersonaOutput | null
   isAnalyzingPersona: boolean
   
+  // Writing streak state
+  writingStreak: { currentStreak: number; longestStreak: number }
+  isLoadingStreak: boolean
+  
   // UI state
   sidebarVisible: boolean
   documentSidebarVisible: boolean
@@ -49,6 +53,9 @@ interface WritingState {
   loadUserDocuments: (userId: string) => Promise<void>
   deleteDocument: (id: string) => Promise<void>
   updateDocumentTitle: (id: string, title: string) => Promise<void>
+  
+  // Writing streak actions
+  loadWritingStreak: (userId: string) => Promise<void>
   
   // Suggestion actions
   requestGrammarSuggestions: () => Promise<void>
@@ -106,6 +113,10 @@ export const useWritingStore = create<WritingState>((set, get) => ({
   activePersona: 'twitter_naval', // Default to Naval's persona
   personaOutput: null,
   isAnalyzingPersona: false,
+  
+  // Writing streak initial state
+  writingStreak: { currentStreak: 0, longestStreak: 0 },
+  isLoadingStreak: false,
   
   sidebarVisible: true,
   documentSidebarVisible: true,
@@ -290,6 +301,11 @@ export const useWritingStore = create<WritingState>((set, get) => ({
         documents: [doc, ...state.documents]
           .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
       }))
+      
+      // Refresh writing streak since we created a new document
+      setTimeout(() => {
+        state.loadWritingStreak(userId)
+      }, 100)
     }
   },
   
@@ -342,6 +358,20 @@ export const useWritingStore = create<WritingState>((set, get) => ({
       if (state.currentDocument?.id === id) {
         set({ currentDocument: updated })
       }
+    }
+  },
+  
+  // Writing streak actions
+  loadWritingStreak: async (userId) => {
+    const state = get()
+    set({ isLoadingStreak: true })
+    
+    try {
+      const streakData = await state.documentService.calculateWritingStreak(userId)
+      set({ writingStreak: streakData, isLoadingStreak: false })
+    } catch (error) {
+      console.error('Error loading writing streak:', error)
+      set({ isLoadingStreak: false })
     }
   },
   

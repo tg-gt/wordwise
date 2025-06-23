@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { useWritingStore } from '@/lib/stores/writing-store'
 import { DocumentSidebar } from './document-sidebar'
 import { PersonaSelector } from './persona-selector'
+import { WritingStreak } from './writing-streak'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
@@ -37,6 +38,8 @@ export function WritingEditor({ userId }: WritingEditorProps) {
     activePersona,
     personaOutput,
     isAnalyzingPersona,
+    writingStreak,
+    isLoadingStreak,
     updateContent,
     saveDocument,
     acceptSuggestion,
@@ -45,6 +48,7 @@ export function WritingEditor({ userId }: WritingEditorProps) {
     ratePersonaOutput,
     toggleSidebar,
     toggleDocumentSidebar,
+    loadWritingStreak,
     cleanup
   } = useWritingStore()
 
@@ -56,8 +60,11 @@ export function WritingEditor({ userId }: WritingEditorProps) {
   // Initialize with new document on mount if no documents exist
   useEffect(() => {
     // Don't auto-create document - let DocumentSidebar handle loading existing documents
+    // Load writing streak
+    loadWritingStreak(userId)
+    
     return () => cleanup()
-  }, [cleanup])
+  }, [cleanup, loadWritingStreak, userId])
 
   // Auto-focus textarea when document changes
   useEffect(() => {
@@ -168,6 +175,13 @@ export function WritingEditor({ userId }: WritingEditorProps) {
                 {charCount}/{MAX_CHARS}
               </Badge>
             )}
+            
+            {/* Writing Streak */}
+            <WritingStreak 
+              currentStreak={writingStreak.currentStreak}
+              longestStreak={writingStreak.longestStreak}
+              isLoading={isLoadingStreak}
+            />
             
             {/* Analysis Status */}
             {isAnalyzing && (
