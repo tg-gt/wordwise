@@ -1,105 +1,193 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# WordWise (AnimusWriter)
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+<div align="center">
+  <h1>🌙⚡ AI-Powered Daily Pages with Jungian Psychology</h1>
+  <p>Transform your stream-of-consciousness journaling into tweet-worthy insights</p>
+  
+  <p>
+    <a href="#features"><strong>Features</strong></a> ·
+    <a href="#getting-started"><strong>Getting Started</strong></a> ·
+    <a href="#how-it-works"><strong>How It Works</strong></a> ·
+    <a href="#deployment"><strong>Deployment</strong></a>
+  </p>
+</div>
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## About
+
+WordWise is an AI-powered writing assistant that transforms your daily pages journaling practice into actionable insights and shareable content. Using Carl Jung's psychological archetypes, the app provides two distinct AI personas - **Anima** (creative intuitive) and **Animus** (strategic challenger) - to help you process your raw thoughts into structured wisdom.
+
+### The Daily Pages Method
+
+Inspired by Julia Cameron's "The Artist's Way," daily pages are three pages of stream-of-consciousness writing done every morning. This practice:
+- Clears mental clutter and creative blocks
+- Accesses deeper patterns in your thinking
+- Provides raw material for creative insights
+- Serves as a foundation for self-reflection
 
 ## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+### 🧠 **Dual AI Personas**
+- **Anima (🌙)**: Provides intuitive wisdom, emotional insight, and creative encouragement
+- **Animus (⚡)**: Offers strategic analysis, constructive challenges, and action-oriented feedback
 
-## Demo
+### ✍️ **Smart Writing Tools**
+- Real-time grammar and style checking
+- Writing metrics and progress tracking
+- Document management with auto-save
+- Contextual AI feedback as you write
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+### 🐦 **Content Extraction**
+- Transform journal entries into tweet-worthy insights
+- Extract actionable strategies from raw thoughts
+- Get feedback styled after thought leaders (Naval, Paul Graham, etc.)
+- Identify recurring patterns and themes
 
-## Deploy to Vercel
+### 📱 **Modern Interface**
+- Clean, distraction-free writing environment
+- Dark/light theme support
+- Responsive design for all devices
+- Intuitive document organization
 
-Vercel deployment will guide you through creating a Supabase account and project.
+## Tech Stack
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+- **Frontend**: Next.js 15 with TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Authentication**: Supabase Auth
+- **Database**: Supabase PostgreSQL
+- **AI**: OpenAI GPT integration
+- **State Management**: Zustand
+- **Deployment**: Vercel-ready
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+## Getting Started
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+### Prerequisites
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+- Node.js 18+ 
+- A Supabase account
+- An OpenAI API key
 
-## Clone and run locally
+### 1. Clone the Repository
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+```bash
+git clone <your-repo-url>
+cd wordwise-app
+npm install
+```
 
-2. Create a Next.js app using the Supabase Starter template npx command
+### 2. Set Up Supabase
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+1. Create a new project at [database.new](https://database.new)
+2. Run the migrations in `app/supabase/migrations/` to set up your database schema
+3. Get your project URL and anon key from the API settings
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+### 3. Configure Environment Variables
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+Create a `.env.local` file in the root directory:
 
-3. Use `cd` to change into the app's directory
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-   ```bash
-   cd with-supabase-app
-   ```
+# OpenAI
+OPENAI_API_KEY=your_openai_api_key
+```
 
-4. Rename `.env.example` to `.env.local` and update the following:
+### 4. Run the Development Server
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+```bash
+npm run dev
+```
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+Visit [http://localhost:3000](http://localhost:3000) to see your app!
 
-5. You can now run the Next.js local development server:
+## How It Works
 
-   ```bash
-   npm run dev
-   ```
+### 1. **Daily Pages Session**
+- Open the writing interface (`/write`)
+- Begin your stream-of-consciousness journaling
+- Write freely without editing or censoring thoughts
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+### 2. **AI Analysis**
+- **Anima** provides intuitive insights and creative patterns
+- **Animus** extracts actionable strategies and challenges
+- Get real-time feedback on grammar and style
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+### 3. **Content Extraction**
+- Transform raw thoughts into shareable insights
+- Generate tweet-worthy content from your journaling
+- Identify themes and patterns across writing sessions
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+### 4. **Growth & Reflection**
+- Build a consistent daily writing practice
+- Track your writing metrics and progress
+- Develop deeper self-awareness through AI feedback
 
-## Feedback and issues
+## Project Structure
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+```
+wordwise-app/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes (AI services)
+│   ├── auth/              # Authentication pages
+│   ├── write/             # Main writing interface
+│   └── supabase/          # Database migrations
+├── components/            # React components
+│   ├── ui/                # shadcn/ui components
+│   └── writing/           # Writing-specific components
+├── lib/                   # Utilities and services
+│   ├── services/          # AI and data services
+│   ├── stores/            # Zustand state management
+│   └── supabase/          # Supabase client config
+└── docs/                  # Documentation
+```
 
-## More Supabase examples
+## Key Components
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+- **WritingEditor**: Main text editor with AI integration
+- **PersonaSelector**: Switch between Anima/Animus feedback
+- **DocumentSidebar**: Manage and organize writing sessions
+- **WritingStreak**: Track daily writing consistency
+
+## Deployment
+
+### Deploy to Vercel
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Add environment variables in Vercel dashboard
+4. Deploy!
+
+The app is optimized for Vercel deployment with automatic builds and environment variable integration.
+
+### Database Setup
+
+Run the migrations in your Supabase project:
+
+```sql
+-- Found in app/supabase/migrations/
+-- 001_initial_schema.sql - Basic auth and documents
+-- 002_persona_schema.sql - AI persona preferences
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Philosophy
+
+WordWise combines the therapeutic benefits of morning pages with modern AI assistance. By engaging with Jung's archetypal psychology through AI personas, users develop a richer understanding of their creative process and inner wisdom.
+
+The app doesn't replace human insight but amplifies it - turning the raw material of daily journaling into structured wisdom for personal growth and creative expression.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+**Ready to transform your daily pages?** Start your journey with AI-guided journaling and discover the insights hidden in your stream-of-consciousness writing.
