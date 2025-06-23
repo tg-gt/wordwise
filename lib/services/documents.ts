@@ -136,7 +136,7 @@ export class DocumentService {
         
         if (docDay.getTime() === expectedDate.getTime()) {
           currentStreak++
-          expectedDate.setDate(expectedDate.getDate() - 1)
+          expectedDate = new Date(expectedDate.getTime() - 24 * 60 * 60 * 1000) // Move back one day
         } else {
           break
         }
